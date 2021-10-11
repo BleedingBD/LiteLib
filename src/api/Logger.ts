@@ -1,16 +1,17 @@
+import StaticLogger from "../common/Logger";
+
 export default class Logger{
-    prefix: string;
-    style = 'font-weight: 700; color: blue';
+    name: string;
 
     constructor(name){
-        this.prefix = `%c[${name}]%c`;
+        this.name = name;
     }
 
-    debug(...args: any[]){ console.debug(this.prefix, this.style, '', ...args); }
-    info(...args: any[]){ console.info(this.prefix, this.style, '', ...args); }
-    log(...args: any[]){ console.log(this.prefix, this.style, '', ...args); }
-    warn(...args: any[]){ console.warn(this.prefix, this.style, '', ...args); }
-    error(...args: any[]){ console.error(this.prefix, this.style, '', ...args); }
-    assert(condition: boolean, ...args: any[]){ console.assert(condition, this.prefix, this.style, '', ...args); }
-    trace(...args: any[]){ console.trace(this.prefix, this.style, '', ...args); }
+    debug(...args: any[]){ StaticLogger.debug(this.name, ...args); }
+    info(...args: any[]){ StaticLogger.info(this.name, ...args); }
+    log(...args: any[]){ StaticLogger.log(this.name, ...args); }
+    warn(...args: any[]){ StaticLogger.warn(this.name, ...args); }
+    error(...args: any[]){ StaticLogger.error(this.name, ...args); }
+    assert(condition: boolean, ...args: any[]){ StaticLogger.assert(condition, this.name, ...args); }
+    trace(...args: any[]){ StaticLogger.trace(this.name, ...args); }
 }
