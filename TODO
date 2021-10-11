@@ -1,0 +1,9 @@
+Update detection
+- using @version and @updateUrl
+Hot reload when library loaded?
+Changelogs
+- hopefully soon aided by PR
+Notices
+- hopefully soon aided by PR
+Patcher
+Automatic Flux Store discovery
