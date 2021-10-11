@@ -1,0 +1,25 @@
+{
+  "name": "litelib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BleedingBD/LiteLib.git"
+  },
+  "author": "",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/BleedingBD/LiteLib/issues"
+  },
+  "homepage": "https://github.com/BleedingBD/LiteLib#readme",
+  "devDependencies": {
+    "@types/bandagedbd__bdapi": "^0.3.2"
+  }
+}

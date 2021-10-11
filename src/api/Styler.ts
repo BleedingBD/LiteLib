@@ -1,3 +1,5 @@
+type RemoveFn = () => void;
+
 export default class Styler{
     pluginName: string;
     private styles = new Set<string>();
@@ -7,9 +9,9 @@ export default class Styler{
         this.pluginName = pluginName;
     }
 
-    add(style: string): ()=>void;
-    add(name: string, style: string): ()=>void;
-    add(name:string, style: string): ()=>void{
+    add(style: string): RemoveFn;
+    add(name: string, style: string): RemoveFn;
+    add(name:string, style?: string): RemoveFn{
         if(!style) {
             style = name;
             name = `${this.index++}`;
