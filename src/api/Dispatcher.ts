@@ -7,6 +7,7 @@ interface DiscordDispatcher {
     dispatch(payload: any): void;
     dirtyDispatch(payload: any): void;
 }
+
 export default class Dispatcher{
     static ActionTypes: {[action: string]: string};
 
