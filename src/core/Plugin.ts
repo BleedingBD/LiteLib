@@ -1,13 +1,16 @@
+import Updater from "./Updater";
 import API from "../api";
 
 class Plugin{
     API: API;
+    name: string;
+
     constructor(pluginName: string){
         this.API = new API(pluginName);
     }
 
     load(): void {
-        // TODO: updater
+        Updater.checkForUpdate(this.name);
         this.initialize(this.API);
     }
     initialize(api: API): void{}

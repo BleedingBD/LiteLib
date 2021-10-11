@@ -1,27 +1,26 @@
-interface PluginMetadata{
-    name: string;
-    version: string;
-    description: string;
-    author: string;
-    authorId?: string;
-    updateUrl?: string;
-    license?: string;
-    litelib?: string;
-    [key:string]:string;
-}
-
+import { valid as semverValid, gt as semverGt } from 'semver'
+import PluginMetadata from '../types/PluginMetadata';
 
 const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
 const escapedAtRegex = /^\\@/;
 
 export default class Updater {
-    static async checkForUpdate(pluginName: string){
-        const meta = BdApi.Plugins.get(pluginName).meta as PluginMetadata;
-        if (!meta?.updateUrl || !meta.version) return;
+    static semver = {
+        valid: semverValid,
+        gt: semverGt
+    };
 
-        const remoteMeta = await this.fetchMetadata(meta.updateUrl);
-        if(remoteMeta && remoteMeta.version!==meta.version){
-            
+    static async checkForUpdate(pluginName: string){
+        const currentMeta = BdApi.Plugins.get(pluginName) as PluginMetadata;
+        const currentVersion = currentMeta?.version;
+        if (!currentVersion || !currentMeta.updateUrl || !this.semver.valid(currentVersion)) return;
+
+        const remoteMeta = await this.fetchMetadata(currentMeta.updateUrl);
+        const remoteVersion = remoteMeta?.version;
+        if(remoteVersion && this.semver.valid(remoteVersion)){
+            if(this.semver.gt(remoteVersion, currentVersion)){
+                // Newer version upstream.
+            }
         }
     }
 

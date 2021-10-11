@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/BleedingBD/LiteLib#readme",
   "devDependencies": {
-    "@types/bandagedbd__bdapi": "^0.3.2"
+    "@types/bandagedbd__bdapi": "^0.3.2",
+    "@types/semver": "^7.3.8",
+    "semver": "^7.3.5"
   }
 }
