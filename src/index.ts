@@ -7,10 +7,12 @@ declare global {
     }
 }
 
+window.LiteLib = Core;
 export default class extends Core.Plugin("LiteLib") {
     load() {
-        window.LiteLib = Core;
         this.API.Logger.log("LiteLib loaded sucessfully!");
         super.load();
     }
+    start(){}
+    stop(){}
 }

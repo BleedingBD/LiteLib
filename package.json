@@ -7,8 +7,7 @@
     "example": "example"
   },
   "scripts": {
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup --config"
   },
   "repository": {
     "type": "git",
@@ -21,8 +20,13 @@
   },
   "homepage": "https://github.com/BleedingBD/LiteLib#readme",
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.5",
+    "@rollup/plugin-typescript": "^8.2.5",
     "@tsconfig/recommended": "^1.0.1",
     "@types/semver": "^7.3.8",
+    "rollup": "^2.58.0",
+    "rollup-plugin-license": "^2.6.0",
+    "rollup-plugin-terser": "^7.0.2",
     "semver": "^7.3.5",
     "typescript": "^4.4.3"
   }
