@@ -4,6 +4,8 @@ import Logger from "./Logger";
 import Modules from "./Modules";
 import Patcher from "./Patcher";
 import Styler from "./Styler";
+import Toasts from "../common/Toasts";
+import Notices from "../common/Notices";
 
 export default class API{
     Modules: Modules;
@@ -12,6 +14,9 @@ export default class API{
     Dispatcher: Dispatcher;
     Data: Data;
     Logger: Logger;
+    // Completely static API parts
+    Toasts = Toasts;
+    Notices = Notices;
     React = BdApi.React;
     ReactDOM = BdApi.ReactDOM;
 
