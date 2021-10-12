@@ -8,13 +8,6 @@ type PatcherOptions = {
     displayName?: string;
     forcePatch?: boolean;
 };
-interface BdPatcher{
-    patch: (caller: string, moduleToPatch: any, functionName: string|Symbol, callback: PatcherBeforeCallback|PatcherAfterCallback|PatcherInsteadCallback, options: PatcherOptions)=>UnpatchFn;
-    after: (caller: string, moduleToPatch: any, functionName: string|Symbol, callback: PatcherAfterCallback, options?: PatcherOptions)=>UnpatchFn;
-    before: (caller: string, moduleToPatch: any, functionName: string|Symbol, callback: PatcherBeforeCallback, options?: PatcherOptions)=>UnpatchFn;
-    instead: (caller: string, moduleToPatch: any, functionName: string|Symbol, callback: PatcherInsteadCallback, options?: PatcherOptions)=>UnpatchFn;
-    unpatchAll: (caller: string)=>void;
-}
 
 export default class Patcher{
     pluginName: string;
@@ -24,15 +17,15 @@ export default class Patcher{
     }
 
     before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): UnpatchFn {
-        return (BdApi.Patcher as BdPatcher).before(this.pluginName, target, methodName, callback, options);
+        return BdApi.Patcher.before(this.pluginName, target, methodName, callback, options);
     }
     after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): UnpatchFn {
-        return (BdApi.Patcher as BdPatcher).after(this.pluginName, target, methodName, callback, options);
+        return BdApi.Patcher.after(this.pluginName, target, methodName, callback, options);
     }
     instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): UnpatchFn {
-        return (BdApi.Patcher as BdPatcher).instead(this.pluginName, target, methodName, callback, options);
+        return BdApi.Patcher.instead(this.pluginName, target, methodName, callback, options);
     }
     unpatchAll(): void {
-        return (BdApi.Patcher as BdPatcher).unpatchAll(this.pluginName);
+        return BdApi.Patcher.unpatchAll(this.pluginName);
     }
 }
