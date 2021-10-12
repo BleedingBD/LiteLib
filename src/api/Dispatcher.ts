@@ -8,10 +8,11 @@ interface DiscordDispatcher {
     dirtyDispatch(payload: any): void;
 }
 
+const discordDispatcher: DiscordDispatcher = BdApi.findModuleByProps("subscribe","unsubscribe");
+
 export default class Dispatcher{
     static ActionTypes: {[action: string]: string};
 
-    private dispatcher: DiscordDispatcher;
     subscriptions = new Map<String,Set<Listener>>();
 
     subscribe(action: string, listener: Listener): UnsubscribeFn {
@@ -21,7 +22,7 @@ export default class Dispatcher{
         const actionSubscriptions = this.subscriptions.get(action);
 
         if(actionSubscriptions.has(listener)){
-            this.dispatcher.subscribe(action, listener);
+            discordDispatcher.subscribe(action, listener);
             actionSubscriptions.add(listener);
         }
 
@@ -34,12 +35,12 @@ export default class Dispatcher{
         const actionSubscriptions = this.subscriptions.get(action);
         if(listener){
             if(actionSubscriptions.has(listener)){
-                this.dispatcher.unsubscribe(action, listener);
+                discordDispatcher.unsubscribe(action, listener);
                 actionSubscriptions.delete(listener);
             }
         }else{
             for(const listener of actionSubscriptions){
-                this.dispatcher.unsubscribe(action, listener);
+                discordDispatcher.unsubscribe(action, listener);
             }
             actionSubscriptions.clear();
         }
@@ -51,4 +52,8 @@ export default class Dispatcher{
         }
         this.subscriptions.clear();
     }
+
+    dispatch(payload: any){ return discordDispatcher.dispatch(payload); }
+    dirtyDispatch(payload: any){ return discordDispatcher.dirtyDispatch(payload); }
+
 }
