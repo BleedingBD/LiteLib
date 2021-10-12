@@ -125,7 +125,7 @@ export default class Notices{
     /** Shorthand for `type = "success"` for {@link module:Notices.show} */
     static success(content: string, options: NoticeOptions = {}) {return this.show(content, Object.assign({}, options, {type: "success"}));}
 
-    private static joinClassNames(...classNames: string[]) {
+    private static joinClassNames(...classNames: (string|undefined)[]) {
         return classNames.filter((n) => n).join(" ");
     }
 
@@ -160,7 +160,7 @@ export default class Notices{
             }, button.label);
         }));
 
-        document.getElementById("ll-notices").appendChild(noticeElement);
+        document.getElementById("ll-notices")!.appendChild(noticeElement);
 
         if (timeout > 0) {
             setTimeout(closeNotification, timeout);
@@ -169,10 +169,10 @@ export default class Notices{
         return closeNotification;
     }
 
-    private static createElement(type, options = {}, ...children) {
+    private static createElement(type: string, options = {}, ...children: (Node|string|null)[]) {
         const element = document.createElement(type);
         Object.assign(element, options);
-        const filteredChildren = children.filter((n) => n);
+        const filteredChildren = children.filter((n) => n) as (Node|string)[];
 
         if (filteredChildren.length > 0) element.append(...filteredChildren);
 

@@ -1,3 +1,5 @@
+export type Predicate = (module: any)=>boolean;
+
 const findByPropsCache = new Map<string, any>();
 const findByDisplayNameCache = new Map<string, any>();
 
@@ -21,11 +23,11 @@ export default class Modules {
         return ret;
     }
 
-    static find(predicate: (any)=>boolean): any {
+    static find(predicate: Predicate): any {
         return BdApi.findModule(predicate);
     }
 
-    static findAll(predicate: (any)=>boolean): any[]|undefined {
+    static findAll(predicate: Predicate): any[]|undefined {
         return BdApi.findAllModules(predicate);
     }
 }

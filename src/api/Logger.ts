@@ -3,7 +3,7 @@ import StaticLogger from "../common/Logger";
 export default class Logger{
     name: string;
 
-    constructor(name){
+    constructor(name: string){
         this.name = name;
     }
 

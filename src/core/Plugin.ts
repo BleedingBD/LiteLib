@@ -3,7 +3,7 @@ import API from "../api";
 
 class Plugin{
     API: API;
-    name: string;
+    name: string = "";
 
     constructor(pluginName: string){
         this.API = new API(pluginName);

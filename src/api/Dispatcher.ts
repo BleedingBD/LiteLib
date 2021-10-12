@@ -19,7 +19,7 @@ export default class Dispatcher{
         if(!this.subscriptions.has(action)){
             this.subscriptions.set(action, new Set<Listener>());
         }
-        const actionSubscriptions = this.subscriptions.get(action);
+        const actionSubscriptions = this.subscriptions.get(action)!;
 
         if(actionSubscriptions.has(listener)){
             discordDispatcher.subscribe(action, listener);
@@ -32,7 +32,7 @@ export default class Dispatcher{
     unsubscribe(action: string, listener?: Listener): void {
         if(!this.subscriptions.has(action)){ return; }
 
-        const actionSubscriptions = this.subscriptions.get(action);
+        const actionSubscriptions = this.subscriptions.get(action)!;
         if(listener){
             if(actionSubscriptions.has(listener)){
                 discordDispatcher.unsubscribe(action, listener);

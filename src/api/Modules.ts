@@ -1,4 +1,4 @@
-import StaticModules from "../common/Modules";
+import StaticModules, { Predicate } from "../common/Modules";
 
 export default class Modules {
     findCache = new Map<string, any>();
@@ -12,7 +12,7 @@ export default class Modules {
         return StaticModules.findByDisplayName(displayName);
     }
 
-    find(name: string, predicate: (any)=>boolean): any {
+    find(name: string, predicate: Predicate): any {
         if (this.findCache.has(name)) return this.findCache.get(name);
 
         const ret = StaticModules.find(predicate);
@@ -20,7 +20,7 @@ export default class Modules {
         return ret;
     }
 
-    findAll(name: string, predicate: (any)=>boolean): any[]|undefined {
+    findAll(name: string, predicate: Predicate): any[]|undefined {
         if (this.findAllCache.has(name)) return this.findAllCache.get(name);
 
         const ret = StaticModules.findAll(predicate);

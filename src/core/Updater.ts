@@ -24,7 +24,7 @@ export default class Updater {
         }
     }
 
-    static async fetchMetadata(url): Promise<PluginMetadata|undefined> {
+    static async fetchMetadata(url: string): Promise<PluginMetadata|undefined> {
         const response = await fetch(url);
         const text = await response.text()
         return this.parseMetadata(text);
