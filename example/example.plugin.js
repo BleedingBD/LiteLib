@@ -62,7 +62,27 @@ class extends window.LiteLib.Plugin("ExamplePlugin") {
 } :
 class {
     load(){
-        // TODO: download snippet
+        const name = BdApi.Plugins.getAll().find(p=>p.instance==this).name;
+        BdApi.showConfirmationModal(
+            "Library plugin is needed",
+            [`The library plugin needed for ${name} is missing. Please click Download to install it.`],
+            {
+                confirmText: "Download",
+                cancelText: "Cancel",
+                onConfirm: async () => {
+                    // TODO: download urls
+                    try {
+                        const response = await fetch("");
+                        const fileContent = await response.text();
+                        await require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0LiteLib.plugin.js"), body, r);
+                        // TODO: make the lib itself reload the client or prompt to do so when first installed?
+                        window.location.reload();
+                    } catch(_) {
+                        require("electron").shell.openExternal("");
+                    }
+                }
+            }
+        );
     }
     start(){}
     stop(){}
