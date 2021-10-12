@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import {terser} from 'rollup-plugin-terser';
 import license from 'rollup-plugin-license';
 
@@ -12,6 +13,7 @@ export default {
     plugins: [
         typescript(),
         nodeResolve(),
+        commonjs(),
         // terser({
         //     compress: {
         //         ecma: 2015,

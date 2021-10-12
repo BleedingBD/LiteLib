@@ -1,14 +1,14 @@
 import PluginMetadata from '../types/PluginMetadata';
-/*const semverValid = require('semver/functions/valid');
-const semverGt = require('semver/functions/gt');*/
+import semverValid from 'semver/functions/valid';
+import semverGt from 'semver/functions/gt';
 
 const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
 const escapedAtRegex = /^\\@/;
 
 export default class Updater {
     static semver = {
-        valid: (ver:string)=>true,
-        gt: (ver:string, other:string)=>false
+        valid: semverValid,
+        gt: semverGt
     };
 
     static async checkForUpdate(pluginName: string){
