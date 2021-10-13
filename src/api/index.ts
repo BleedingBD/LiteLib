@@ -4,9 +4,9 @@ import Logger from "./Logger";
 import Modules from "./Modules";
 import Patcher from "./Patcher";
 import Styler from "./Styler";
-import Modals from "../common/Modals";
-import Notices from "../common/Notices";
-import Toasts from "../common/Toasts";
+import Modals from "@common/Modals";
+import Notices from "@common/Notices";
+import Toasts from "@common/Toasts";
 
 export default class API{
     Modules: Modules;

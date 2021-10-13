@@ -1,5 +1,6 @@
-import typescript from "@rollup/plugin-typescript";
+import alias from "@rollup/plugin-alias"
 import nodeResolve from "@rollup/plugin-node-resolve";
+import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 // import {terser} from "rollup-plugin-terser";
 import license from "rollup-plugin-license";
@@ -9,15 +10,13 @@ export default {
     output: {
         file: "dist/0LiteLib.plugin.js",
         format: "cjs",
-        exports: "default"
+        exports: "auto"
     },
     plugins: [
         nodeResolve({
             extensions: [".js", ".jsx", ".ts", ".tsx", ".d.ts"]
         }),
-        typescript({
-            outDir: "dist"
-        }),
+        typescript(),
         commonjs(),
         // terser({
         //     compress: {

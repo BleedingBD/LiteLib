@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/BleedingBD/LiteLib#readme",
   "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.5",
     "@rollup/plugin-commonjs": "^21.0.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-typescript": "^8.2.5",

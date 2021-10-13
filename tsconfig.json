@@ -4,6 +4,11 @@
     "compilerOptions": {
         "esModuleInterop": true,
         "jsx": "react",
-        "jsxFactory": "BdApi.React.createElement"
+        "jsxFactory": "BdApi.React.createElement",
+        "outDir": "dist",
+        "baseUrl": "src",
+        "paths": {
+            "@common/*": ["common/*"]
+        }
     }
 }

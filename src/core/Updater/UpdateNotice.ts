@@ -1,5 +1,5 @@
-import Notices, { CloseFn } from "../../common/Notices";
-import { createHTMLElement } from "../../common/Utilities";
+import Notices, { CloseFn } from "@common/Notices";
+import { createHTMLElement } from "@common/Utilities";
 import { applyUpdate } from "./UpdatePerformer";
 
 BdApi.injectCSS("ll-notices-style",`

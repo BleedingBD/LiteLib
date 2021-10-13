@@ -1,6 +1,6 @@
 import { promises } from "fs";
 import { resolve } from "path";
-import Logger from "../../common/Logger";
+import Logger from "@common/Logger";
 import { parseMetadata } from "./MetadataParser";
 import PendingUpdateStore from "./PendingUpdatesStore";
 

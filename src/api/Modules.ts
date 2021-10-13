@@ -1,4 +1,4 @@
-import StaticModules, { Predicate } from "../common/Modules";
+import StaticModules, { Predicate } from "@common/Modules";
 
 export default class Modules {
     findCache = new Map<string, any>();
