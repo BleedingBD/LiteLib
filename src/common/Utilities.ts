@@ -19,25 +19,11 @@ function applyChildren(node: Node, children: NodeChildren) {
 
 export function createHTMLElement(
     tag: string,
-    attrs: null | {[key: string]: any},
+    attrs?: null | {[key: string]: any},
     ...children: NodeChildren
 ): HTMLElement {
-
     const element = document.createElement(tag);
-
-    if (attrs) {
-        for (const name of Object.keys(attrs)) {
-            const value = attrs[name];
-            if (name.startsWith("on")) {
-                const finalName = name.replace(/Capture$/, "");
-                const useCapture = name !== finalName;
-                const eventName = finalName.toLowerCase().substring(2);
-                element.addEventListener(eventName, value as EventListenerOrEventListenerObject, useCapture);
-            } else if (value === true) element.setAttribute(name, name);
-            else if (value || value === 0) element.setAttribute(name, value.toString());
-        }
-    }
-
+    if (attrs) Object.assign(element, attrs);
     applyChildren(element, children);
     return element;
 };

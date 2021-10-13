@@ -104,7 +104,9 @@ BdApi.injectCSS("ll-notices-style",`
 }
 `);
 
-type NoticeOptions = {
+export declare type CloseFn = (immediately?: boolean) => void;
+
+export declare type NoticeOptions = {
     type?: "info"|"warn"|"error"|"success";
     buttons?: {
         label: string;
@@ -118,19 +120,19 @@ export default class Notices{
     private static get baseClass() {return this.__baseClass || (this.__baseClass = Modules.findByProps("container", "base")?.base);}
 
     /** Shorthand for `type = "info"` for {@link module:Notices.show} */
-    static info(content: string, options: NoticeOptions = {}) {return this.show(content, Object.assign({}, options, {type: "info"}));}
+    static info(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "info"}));}
     /** Shorthand for `type = "warning"` for {@link module:Notices.show} */
-    static warn(content: string, options: NoticeOptions = {}) {return this.show(content, Object.assign({}, options, {type: "warning"}));}
+    static warn(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "warning"}));}
     /** Shorthand for `type = "error"` for {@link module:Notices.show} */
-    static error(content: string, options: NoticeOptions = {}) {return this.show(content, Object.assign({}, options, {type: "error"}));}
+    static error(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "error"}));}
     /** Shorthand for `type = "success"` for {@link module:Notices.show} */
-    static success(content: string, options: NoticeOptions = {}) {return this.show(content, Object.assign({}, options, {type: "success"}));}
+    static success(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "success"}));}
 
     private static joinClassNames(...classNames: (string|undefined)[]) {
         return classNames.filter((n) => n).join(" ");
     }
 
-    static show(content: string, options: NoticeOptions = {}) {
+    static show(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {
         const {type, buttons = [], timeout = 10000} = options;
         const haveContainer = this.ensureContainer();
         if (!haveContainer) return;
@@ -152,11 +154,11 @@ export default class Notices{
             },
             [
                 createHTMLElement("div", {className: "ll-notice-close", onclick: () => closeNotification()}),
-                createHTMLElement("div", {className: "ll-notice-content"}, content),
+                createHTMLElement("span", {className: "ll-notice-content"}, content),
                 ...buttons.map((button) => {
                     if (!button || !button.label || typeof(button.onClick) !== "function") return null;
                     return createHTMLElement(
-                        "div",
+                        "button",
                         {
                             className: "ll-notice-button",
                             onclick: button.onClick.bind(null, closeNotification)

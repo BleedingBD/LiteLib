@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Updater from "./Updater";
 import API from "../api";
+import { AddonEntry } from "../../@types/betterdiscord__bdapi";
 
 export declare interface Plugin {
     API: API;
@@ -22,15 +23,16 @@ export declare interface Plugin {
 }
 
 export abstract class PluginBase implements Plugin {
-    API: API;
-    name!: string;
+    readonly name: string;
+    readonly API: API;
 
     constructor(pluginName: string){
+        this.name = pluginName;
         this.API = new API(pluginName);
     }
 
     load(): void {
-        Updater.checkForUpdate(this.name);
+        window.setTimeout(()=>Updater.checkForUpdate(this.name));
         this.initialize(this.API);
     }
     initialize(api: API): void{}

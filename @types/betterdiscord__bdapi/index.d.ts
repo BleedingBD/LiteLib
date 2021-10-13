@@ -188,7 +188,7 @@ export interface ConfirmationModalOptions {
     onCancel?: (() => any) | undefined;
 }
 
-declare interface AddonEntry {
+export interface AddonEntry {
     id: string;
     name: string;
     version: string;

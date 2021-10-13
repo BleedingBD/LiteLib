@@ -1,8 +1,11 @@
 import semverValid from 'semver/functions/valid';
 import semverGt from 'semver/functions/gt';
+import { show } from './UpdateNotice';
 
 const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
 const escapedAtRegex = /^\\@/;
+
+const pendingUpdates = new Set<string>();
 
 export default class Updater {
     static semver = {
@@ -14,14 +17,19 @@ export default class Updater {
         const currentMeta = BdApi.Plugins.get(pluginName);
         const currentVersion = currentMeta?.version;
         if (!currentVersion || !currentMeta.updateUrl || !this.semver.valid(currentVersion)) return;
+        console.log(`Checking for update for ${pluginName} ${currentVersion} at ${currentMeta.updateUrl}`);
 
         const remoteMeta = await this.fetchMetadata(currentMeta.updateUrl);
+        console.log(`Remote Metadata:`, remoteMeta);
         const remoteVersion = remoteMeta?.version;
         if(remoteVersion && this.semver.valid(remoteVersion)){
             if(this.semver.gt(remoteVersion, currentVersion)){
-                // Newer version upstream.
+                pendingUpdates.add(pluginName);
+                show(pendingUpdates);
+                return true;
             }
         }
+        return false;
     }
 
     private static async fetchMetadata(url: string): Promise<Record<string,string>|undefined> {
@@ -55,6 +63,4 @@ export default class Updater {
         out["format"] = "jsdoc";
         return out;
     }
-
-    static showUpdateNotice(){}
 }
