@@ -1,3 +1,5 @@
+import {h} from "tsx-dom";
+
 import Modules from "./Modules";
 
 /**
@@ -6,7 +8,7 @@ import Modules from "./Modules";
  * As this code is taken from BetterDiscord the respective license applies.
  */
 
-BdApi.injectCSS("ll-notices",`
+BdApi.injectCSS("ll-notices-style",`
 .ll-notice-success {
     --color: #3ba55d;
 }
@@ -144,21 +146,16 @@ export default class Notices{
             setTimeout(() => {noticeElement.remove();}, 300);
         };
 
-        const noticeElement = this.createElement("div", {
-            className: this.joinClassNames("ll-notice", type && `ll-notice-${type}`),
-        }, this.createElement("div", {
-            className: "ll-notice-close",
-            onclick: closeNotification.bind(null, false)
-        }), this.createElement("span", {
-            className: "ll-notice-content"
-        }, content), ...buttons.map((button) => {
-            if (!button || !button.label || typeof(button.onClick) !== "function") return null;
-
-            return this.createElement("button", {
-                className: "ll-notice-button",
-                onclick: button.onClick.bind(null, closeNotification)
-            }, button.label);
-        }));
+        const noticeElement = <div class={this.joinClassNames("ll-notice", type && `ll-notice-${type}`)}>
+            <div class="ll-notice-close" onClick={() => closeNotification()}></div>
+            <span class="ll-notice-content">{content}</span>
+            {buttons.map((button, i) => {
+                if (!button || !button.label || typeof(button.onClick) !== "function") return null;
+                return (<button class="ll-notice-button" onClick={button.onClick.bind(null, closeNotification)}>
+                    {button.label}
+                </button>)
+            })}
+        </div>;
 
         document.getElementById("ll-notices")!.appendChild(noticeElement);
 
@@ -169,25 +166,12 @@ export default class Notices{
         return closeNotification;
     }
 
-    private static createElement(type: string, options = {}, ...children: (Node|string|null)[]) {
-        const element = document.createElement(type);
-        Object.assign(element, options);
-        const filteredChildren = children.filter((n) => n) as (Node|string)[];
-
-        if (filteredChildren.length > 0) element.append(...filteredChildren);
-
-        return element;
-    }
-
     private static ensureContainer() {
         if (document.getElementById("ll-notices")) return true;
         const container = document.querySelector(`.${this.baseClass}`);
         if (!container) return false;
-        const noticeContainer = this.createElement("div", {
-            id: "ll-notices"
-        });
+        const noticeContainer = <div id="ll-notices"></div>;
         container.prepend(noticeContainer);
-
         return true;
     }
 }
