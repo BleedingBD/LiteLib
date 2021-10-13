@@ -149,7 +149,7 @@ export default class Notices{
         const noticeElement = <div class={this.joinClassNames("ll-notice", type && `ll-notice-${type}`)}>
             <div class="ll-notice-close" onClick={() => closeNotification()}></div>
             <span class="ll-notice-content">{content}</span>
-            {buttons.map((button, i) => {
+            {buttons.map((button) => {
                 if (!button || !button.label || typeof(button.onClick) !== "function") return null;
                 return (<button class="ll-notice-button" onClick={button.onClick.bind(null, closeNotification)}>
                     {button.label}

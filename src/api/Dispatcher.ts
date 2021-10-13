@@ -13,7 +13,7 @@ const discordDispatcher: DiscordDispatcher = BdApi.findModuleByProps("subscribe"
 export default class Dispatcher{
     static ActionTypes: {[action: string]: string};
 
-    subscriptions = new Map<String,Set<Listener>>();
+    subscriptions = new Map<string,Set<Listener>>();
 
     subscribe(action: string, listener: Listener): UnsubscribeFn {
         if(!this.subscriptions.has(action)){

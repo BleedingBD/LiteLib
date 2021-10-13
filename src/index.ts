@@ -13,6 +13,8 @@ export default class extends Core.Plugin("LiteLib") {
         this.API.Logger.log("LiteLib loaded sucessfully!");
         super.load();
     }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     start(){}
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     stop(){}
 }

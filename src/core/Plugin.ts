@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Updater from "./Updater";
 import API from "../api";
 
 class Plugin{
     API: API;
-    name: string = "";
+    name = "";
 
     constructor(pluginName: string){
         this.API = new API(pluginName);

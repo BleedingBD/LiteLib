@@ -3,9 +3,9 @@ export default interface PluginMetadata{
     version: string;
     description: string;
     author: string;
-    authorId?: string|undefined;
-    updateUrl?: string|undefined;
-    license?: string|undefined;
-    litelib?: string|undefined;
-    [key:string]:string;
+    authorId?: string;
+    updateUrl?: string;
+    license?: string;
+    litelib?: string;
+    [key:string]: string|undefined;
 }

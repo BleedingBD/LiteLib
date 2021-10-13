@@ -1,5 +1,6 @@
 type PatcherBeforeCallback = (thisArg: any, args: any[])=>any;
 type PatcherAfterCallback = (thisArg: any, args: any[], result: any)=>any;
+// eslint-disable-next-line @typescript-eslint/ban-types
 type PatcherInsteadCallback = (thisArg: any, args: any[], originalFn: Function)=>any;
 
 type UnpatchFn = ()=>void;
