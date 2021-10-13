@@ -1,3 +1,6 @@
+import Logger from "../common/Logger";
+import Modules from "../common/Modules";
+
 type UnsubscribeFn = () => void;
 type Listener = (payload: any) => void;
 
@@ -8,10 +11,21 @@ interface DiscordDispatcher {
     dirtyDispatch(payload: any): void;
 }
 
-const discordDispatcher: DiscordDispatcher = BdApi.findModuleByProps("subscribe","unsubscribe");
+const discordDispatcher: DiscordDispatcher = BdApi.findModuleByProps("subscribe","unsubscribe") || BdApi.findModuleByProps("dispatch","dirtyDispatch")
 
 export default class Dispatcher{
-    static ActionTypes: {[action: string]: string};
+    readonly ActionTypes: {[action: string]: string} = Modules.findByProps("ActionTypes").ActionTypes;
+
+    constructor(){
+        if (!this.ActionTypes) {
+            Logger.warn("Dispatcher", "ActionTypes not found, defaulting to identity proxy.");
+            // at the time of writing this is equivalent to Discord's ActionTypes object
+            this.ActionTypes = new Proxy({}, {
+                get: (_, prop) => prop,
+                set: () => false
+            });
+        }
+    }
 
     subscriptions = new Map<string,Set<Listener>>();
 
