@@ -3,9 +3,27 @@
 import Updater from "./Updater";
 import API from "../api";
 
-class Plugin{
+export declare interface Plugin {
     API: API;
-    name = "";
+    name: string;
+
+    load(): void;
+    initialize(api: API): void;
+
+    start(): void;
+    setup(api: API): void;
+    patch(api: API): void;
+    style(api: API): void;
+
+    stop(): void;
+    cleanup(api: API): void;
+    unpatch(api: API): void;
+    unstyle(api: API): void;
+}
+
+export abstract class PluginBase implements Plugin {
+    API: API;
+    name!: string;
 
     constructor(pluginName: string){
         this.API = new API(pluginName);
@@ -36,8 +54,8 @@ class Plugin{
     unstyle({Styler}: API): void{ Styler.removeAll(); }
 }
 
-export default function(pluginName: string): typeof Plugin & {new(): Plugin} {
-    return class extends Plugin {
+export default function(pluginName: string): typeof PluginBase & {new(): PluginBase} {
+    return class extends PluginBase {
         constructor() {
             super(pluginName);
         }

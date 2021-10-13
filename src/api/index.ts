@@ -13,7 +13,8 @@ export default class API{
     Patcher: Patcher;
     Styler: Styler;
     Dispatcher: Dispatcher;
-    Data: Data;
+    Data: any;
+    Settings: any;
     Logger: Logger;
     // Completely static API parts
     Modals = Modals;
@@ -28,6 +29,8 @@ export default class API{
         this.Styler = new Styler(pluginName);
         this.Dispatcher = new Dispatcher();
         this.Logger = new Logger(pluginName);
-        this.Data = new Data(pluginName);
+        const data = Data(pluginName);
+        this.Data = data.data;
+        this.Settings = data.settings;
     }
 }

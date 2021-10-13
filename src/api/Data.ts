@@ -1,10 +1,22 @@
-export default class Data {
-    pluginName: string;
+import * as nests from 'nests';
+import fs from 'fs';
+import path from 'path';
 
-    constructor(pluginName: string){
-        this.pluginName = pluginName;
+export default function Data(pluginName: string): any {
+    const pluginPath = path.resolve(BdApi.Plugins.folder, pluginName + ".config.json")
+
+    let pluginData: {[key: string]: unknown};
+    if (!fs.existsSync(pluginPath)){
+        pluginData = {};
+    } else {
+        pluginData = JSON.parse(fs.readFileSync(pluginPath, "utf8"));
     }
 
-    set(key: string, data: any): void { BdApi.saveData(this.pluginName, key, data); }
-    get(key: string): any { BdApi.loadData(this.pluginName, key); }
+    const nest = nests.make(pluginData);
+
+    const saveFn = ()=>fs.writeFileSync(pluginPath, JSON.stringify(pluginData, null, 4));
+    nest.on(nests.Events.SET, saveFn);
+    nest.on(nests.Events.DELETE, saveFn);
+
+    return nest.store;
 }

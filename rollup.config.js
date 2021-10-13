@@ -12,8 +12,12 @@ export default {
         exports: "default"
     },
     plugins: [
-        typescript(),
-        nodeResolve(),
+        nodeResolve({
+            extensions: [".js", ".jsx", ".ts", ".tsx", ".d.ts"]
+        }),
+        typescript({
+            outDir: "dist"
+        }),
         commonjs(),
         // terser({
         //     compress: {
