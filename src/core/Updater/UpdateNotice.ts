@@ -1,5 +1,6 @@
 import Notices, { CloseFn } from "../../common/Notices";
 import { createHTMLElement } from "../../common/Utilities";
+import { applyUpdate } from "./UpdatePerformer";
 
 BdApi.injectCSS("ll-notices-style",`
 .ll-notice-success {
@@ -105,8 +106,12 @@ const noticeNode: HTMLElement = createHTMLElement("span", {className: "ll-update
 
 let currentCloseFunction: CloseFn | undefined;
 
-export const show = (outdatedPlugins: Set<string>) => {
+export const update = (outdatedPlugins: string[]) => {
     const isShown = currentCloseFunction && document.contains(noticeNode);
+    if (!outdatedPlugins.length) { 
+        if (isShown) currentCloseFunction!();
+        return;
+    }
     
     if (!isShown) {
         currentCloseFunction = Notices.info(noticeNode, { 
@@ -114,6 +119,7 @@ export const show = (outdatedPlugins: Set<string>) => {
             buttons: [{
                 label: "Update All",
                 onClick: () => {
+                    outdatedPlugins.forEach(plugin => applyUpdate(plugin));
                     currentCloseFunction!();
                     currentCloseFunction = undefined;
                 }
@@ -125,12 +131,10 @@ export const show = (outdatedPlugins: Set<string>) => {
         const pluginNode = createHTMLElement("strong", {
             className: "ll-update-notice-plugin",
             onclick: ()=> { 
-                console.info(`Updating plugin: ${plugin}`);
+                applyUpdate(plugin)
             }
         }, plugin);
         pluginsList.appendChild(document.createTextNode(" "));
         pluginsList.appendChild(pluginNode);
     });
-
-
 };
