@@ -5,13 +5,13 @@ import Modules from "./Modules";
 const React = BdApi.React;
 const ModalActions = Modules.findByProps("openModal", "updateModal");
 const FormTitle = Modules.findByDisplayName("FormTitle");
-const Buttons = Modules.findByProps("ButtonColors");
+const Button = Modules.findByProps("ButtonColors").default;
 const {ModalRoot, ModalHeader, ModalContent, ModalFooter, ModalSize} = Modules.findByProps("ModalRoot");
 const Messages = Modules.findByProps("Messages", "setLocale")?.Messages;
 
-class ReactWrapper extends React.Component<{element: Node}> {
+class ReactWrapper extends React.Component<{element: Node|string}> {
     elementRef = React.createRef<Node>();
-    element: Node;
+    element: Node|string;
 
     constructor(props: {element: Node}) {
         super(props);
@@ -34,12 +34,12 @@ class ReactWrapper extends React.Component<{element: Node}> {
 
 export default class Modals{
 
-    static show(title: string, panel: Node|React.FC|React.Component){
+    static show(title: string, panel: Node|React.FC|React.Component|ReactNode){
         let child: ReactNode;
         if (typeof(panel) === "function") {
-            child = React.createElement(panel);
+            child = React.createElement(panel as React.FC);
         } else if (panel instanceof Node || typeof(panel) === "string") {
-            child = React.createElement(ReactWrapper,{ element: panel });
+            child = <ReactWrapper element={panel}/>;
         } else if (React.isValidElement(panel)) {
             child = panel;
         }
@@ -50,13 +50,15 @@ export default class Modals{
         
         const modal = (props: any) => {
             return React.createElement(ModalRoot, Object.assign({size: ModalSize.MEDIUM, className: "ll-modal"}, props),
-                React.createElement(ModalHeader, {separator: false, className: "ll-modal-header"},
-                    React.createElement(FormTitle, {tag: "h4"}, title)
-                ),
-                React.createElement(ModalContent, {className: "ll-modal-content"},child),
-                React.createElement(ModalFooter, {className: "ll-modal-footer"},
-                    React.createElement(Buttons.default, {onClick: props.onClose, className: "bd-button"}, Messages?.DONE||"Done")
-                )
+                <ModalHeader separator="false" className="ll-modal-header">
+                    <FormTitle tag="h4">{title}</FormTitle>
+                </ModalHeader>,
+                <ModalContent className="ll-modal-content">child</ModalContent>,
+                <ModalFooter className="ll-modal-footer">
+                    <Button className="bd-button" onClick={props.onClose}>
+                        {Messages?.DONE||"Done"}
+                    </Button>
+                </ModalFooter>
             );
         };
 

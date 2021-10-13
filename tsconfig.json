@@ -3,6 +3,7 @@
     "include": ["src/**/*", "@types/**/*"],
     "compilerOptions": {
         "esModuleInterop": true,
-        "jsx": "react"
+        "jsx": "react",
+        "jsxFactory": "BdApi.React.createElement"
     }
 }
