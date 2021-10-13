@@ -1,4 +1,3 @@
-import PluginMetadata from '../types/PluginMetadata';
 import semverValid from 'semver/functions/valid';
 import semverGt from 'semver/functions/gt';
 
@@ -12,7 +11,7 @@ export default class Updater {
     };
 
     static async checkForUpdate(pluginName: string){
-        const currentMeta = BdApi.Plugins.get(pluginName) as PluginMetadata;
+        const currentMeta = BdApi.Plugins.get(pluginName);
         const currentVersion = currentMeta?.version;
         if (!currentVersion || !currentMeta.updateUrl || !this.semver.valid(currentVersion)) return;
 
@@ -25,18 +24,18 @@ export default class Updater {
         }
     }
 
-    static async fetchMetadata(url: string): Promise<PluginMetadata|undefined> {
+    private static async fetchMetadata(url: string): Promise<Record<string,string>|undefined> {
         const response = await fetch(url);
         const text = await response.text()
         return this.parseMetadata(text);
     }
 
-    static parseMetadata(fileContent: string): PluginMetadata|undefined {
+    static parseMetadata(fileContent: string): Record<string,string>|undefined {
         if(!fileContent.startsWith("/**")) return;
 
         // Taken directly from BD
         const block = fileContent.split("/**", 2)[1].split("*/", 1)[0];
-        const out = {} as PluginMetadata;
+        const out: Record<string,string> = {};
         let field = "";
         let accum = "";
         for (const line of block.split(splitRegex)) {

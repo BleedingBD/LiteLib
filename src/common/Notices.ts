@@ -1,6 +1,5 @@
-import {h} from "tsx-dom";
-
 import Modules from "./Modules";
+import { createHTMLElement } from "./Utilities";
 
 /**
  * This is directly taken from Strencher's Notices API pull request for BetterDiscord.
@@ -146,16 +145,27 @@ export default class Notices{
             setTimeout(() => {noticeElement.remove();}, 300);
         };
 
-        const noticeElement = <div class={this.joinClassNames("ll-notice", type && `ll-notice-${type}`)}>
-            <div class="ll-notice-close" onClick={() => closeNotification()}></div>
-            <span class="ll-notice-content">{content}</span>
-            {buttons.map((button) => {
-                if (!button || !button.label || typeof(button.onClick) !== "function") return null;
-                return (<button class="ll-notice-button" onClick={button.onClick.bind(null, closeNotification)}>
-                    {button.label}
-                </button>)
-            })}
-        </div>;
+        const noticeElement = createHTMLElement(
+            "div",
+            {
+                className: this.joinClassNames("ll-notice", type && `ll-notice-${type}`)
+            },
+            [
+                createHTMLElement("div", {className: "ll-notice-close", onclick: () => closeNotification()}),
+                createHTMLElement("div", {className: "ll-notice-content"}, content),
+                ...buttons.map((button) => {
+                    if (!button || !button.label || typeof(button.onClick) !== "function") return null;
+                    return createHTMLElement(
+                        "div",
+                        {
+                            className: "ll-notice-button",
+                            onclick: button.onClick.bind(null, closeNotification)
+                        },
+                        button.label
+                    )
+                })
+            ]
+        )
 
         document.getElementById("ll-notices")!.appendChild(noticeElement);
 
@@ -170,7 +180,7 @@ export default class Notices{
         if (document.getElementById("ll-notices")) return true;
         const container = document.querySelector(`.${this.baseClass}`);
         if (!container) return false;
-        const noticeContainer = <div id="ll-notices"></div>;
+        const noticeContainer = createHTMLElement("div", {id: "ll-notices"});
         container.prepend(noticeContainer);
         return true;
     }

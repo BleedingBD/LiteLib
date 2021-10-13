@@ -188,6 +188,23 @@ export interface ConfirmationModalOptions {
     onCancel?: (() => any) | undefined;
 }
 
+declare interface AddonEntry {
+    id: string;
+    name: string;
+    version: string;
+    filename: string;
+    size: number;
+    modified: number;
+    exports: any;
+    description?: string;
+    author?: string;
+    authorId?: string;
+    invite?: string;
+    instance?: any;
+    [meta: string]: string|undefined;
+}
+
+
 /**
  * The following functions are available as a part of each `AddonAPI` object from `BdApi`.
  */
@@ -227,13 +244,13 @@ declare interface AddonAPI {
      * @param name The name/identifier of the addon.
      * @returns For plugins, this is the plugin instance, for themes this is the meta + css.
      */
-    get(name: string): object;
+    get(name: string): AddonEntry|undefined;
 
     /**
      * Gets all the "instances" of addon type.
      * @returns An array matching the output of get.
      */
-    getAll(): void;
+    getAll(): AddonEntry[];
 }
 
 declare namespace BdApiModule {

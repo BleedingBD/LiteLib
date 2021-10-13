@@ -4,8 +4,7 @@
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
-        },
-        "jsxPragma": "h"
+        }
     },
     "plugins": [
         "@typescript-eslint"

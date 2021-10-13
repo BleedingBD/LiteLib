@@ -1,14 +1,15 @@
-import typescript from '@rollup/plugin-typescript';
-import nodeResolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import {terser} from 'rollup-plugin-terser';
-import license from 'rollup-plugin-license';
+import typescript from "@rollup/plugin-typescript";
+import nodeResolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+// import {terser} from "rollup-plugin-terser";
+import license from "rollup-plugin-license";
 
 export default {
-    input: 'src/index.ts',
+    input: "src/index.ts",
     output: {
-        file: 'dist/0LiteLib.plugin.js',
-        format: 'cjs'
+        file: "dist/0LiteLib.plugin.js",
+        format: "cjs",
+        exports: "default"
     },
     plugins: [
         typescript(),
@@ -24,10 +25,10 @@ export default {
         // }),
         license({
             banner: {
-                commentStyle: 'none',
+                commentStyle: "none",
                 content: {
-                    file: 'src/meta.txt',
-                    encoding: 'utf-8'
+                    file: "src/meta.txt",
+                    encoding: "utf-8"
                 }
             }
         })

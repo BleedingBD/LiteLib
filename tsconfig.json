@@ -3,7 +3,6 @@
     "include": ["src/**/*", "@types/**/*"],
     "compilerOptions": {
         "esModuleInterop": true,
-        "jsx": "react",
-        "jsxFactory": "h"
+        "jsx": "react"
     }
 }
