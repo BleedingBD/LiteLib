@@ -1,3 +1,6 @@
+import { promises } from "fs";
+import { resolve } from "path";
+import { API } from "api";
 import * as Core from "./core";
 
 declare global {
@@ -9,12 +12,22 @@ declare global {
 
 window.LiteLib = Core;
 export default class extends Core.Plugin("LiteLib") {
-    load() {
-        this.API.Logger.log("LiteLib loaded sucessfully!");
-        super.load();
+    initialize(API: API) {
+        window.setTimeout(()=>this.firstLoad(API), 0);
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    start(){}
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    stop(){}
+
+    firstLoad({ Logger }: API) {
+        Logger.info("Detected first load.");
+        const time = new Date();
+        BdApi.Plugins.getAll().forEach(plugin => {
+            if (plugin.litelib && plugin.instance!=this) {
+                Logger.info(`Reloading ${plugin.name}.`)
+                promises.utimes(resolve(BdApi.Plugins.folder, plugin.filename), time, time).catch(()=>{});
+            }
+        });
+    }
+
+    getChangelogPanel() {
+        return "test";
+    }
 }

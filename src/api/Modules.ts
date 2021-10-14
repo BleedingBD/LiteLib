@@ -12,7 +12,6 @@ export default class Modules {
         return StaticModules.find(predicate);
     }
 
-
     @Memoize() findAll(name: string, predicate: Predicate): any[]|undefined {
         return StaticModules.findAll(predicate);
     }
