@@ -1,17 +1,23 @@
 import StaticLogger from "@common/Logger";
 
-export default class Logger{
-    name: string;
+export interface Logger {
+    debug(...args: any[]): void;
+    info(...args: any[]): void;
+    log(...args: any[]): void;
+    warn(...args: any[]): void;
+    error(...args: any[]): void;
+    assert(condition: boolean, ...args: any[]): void;
+    trace(...args: any[]): void;
+}
 
-    constructor(name: string){
-        this.name = name;
-    }
-
-    debug(...args: any[]){ StaticLogger.debug(this.name, ...args); }
-    info(...args: any[]){ StaticLogger.info(this.name, ...args); }
-    log(...args: any[]){ StaticLogger.log(this.name, ...args); }
-    warn(...args: any[]){ StaticLogger.warn(this.name, ...args); }
-    error(...args: any[]){ StaticLogger.error(this.name, ...args); }
-    assert(condition: boolean, ...args: any[]){ StaticLogger.assert(condition, this.name, ...args); }
-    trace(...args: any[]){ StaticLogger.trace(this.name, ...args); }
+export default function Logger(pluginName: string): Logger {
+    return {
+        debug: StaticLogger.debug.bind(StaticLogger, pluginName),
+        info: StaticLogger.info.bind(StaticLogger, pluginName),
+        log: StaticLogger.log.bind(StaticLogger, pluginName),
+        warn: StaticLogger.warn.bind(StaticLogger, pluginName),
+        error: StaticLogger.error.bind(StaticLogger, pluginName),
+        assert: (condition: boolean, ...args: any[])=>StaticLogger.assert(condition, pluginName, ...args),
+        trace: StaticLogger.trace.bind(StaticLogger, pluginName)
+    };
 }

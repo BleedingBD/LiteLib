@@ -3,9 +3,7 @@ type NodeChildren = (NodeChild | NodeChildren | null)[];
 
 function applyChild(element: Node, child: NodeChild) {
     if (child instanceof Node) element.appendChild(child);
-    else if (typeof child === "string" || typeof child === "number")
-        element.appendChild(document.createTextNode(child.toString()));
-    else console.warn("Unknown type to append: ", child);
+    else element.appendChild(document.createTextNode(child.toString()));
 }
 
 function applyChildren(node: Node, children: NodeChildren) {

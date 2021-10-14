@@ -2,6 +2,8 @@
     "extends": "@tsconfig/recommended/tsconfig.json",
     "include": ["src/**/*", "@types/**/*"],
     "compilerOptions": {
+        "experimentalDecorators": true,
+        "target": "ES2017",
         "esModuleInterop": true,
         "jsx": "react",
         "jsxFactory": "BdApi.React.createElement",

@@ -128,13 +128,14 @@ export const update = (outdatedPlugins: string[]) => {
     }
     pluginsList.innerHTML = "";
     outdatedPlugins.forEach(plugin => {
-        const pluginNode = createHTMLElement("strong", {
-            className: "ll-update-notice-plugin",
-            onclick: ()=> { 
-                applyUpdate(plugin)
-            }
-        }, plugin);
         pluginsList.appendChild(document.createTextNode(" "));
-        pluginsList.appendChild(pluginNode);
+        pluginsList.appendChild(
+            createHTMLElement("strong", {
+                className: "ll-update-notice-plugin",
+                onclick: ()=> { 
+                    applyUpdate(plugin)
+                }
+            }, plugin)
+        );
     });
 };

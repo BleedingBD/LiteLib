@@ -1,3 +1,5 @@
+
+import { Memoize } from 'typescript-memoize';
 import Data from "./Data";
 import Dispatcher from "./Dispatcher";
 import Logger from "./Logger";
@@ -8,14 +10,33 @@ import Modals from "@common/Modals";
 import Notices from "@common/Notices";
 import Toasts from "@common/Toasts";
 
-export default class API{
+export interface API {
     Modules: Modules;
-    Patcher: Patcher;
+    Patcher: ReturnType<typeof Patcher>;
     Styler: Styler;
     Dispatcher: Dispatcher;
     Data: any;
     Settings: any;
-    Logger: Logger;
+    Logger: ReturnType<typeof Logger>;
+    // Completely static API parts
+    Modals: Modals;
+    Notices: Notices;
+    Toasts: Toasts;
+    React: typeof BdApi.React;
+    ReactDOM: typeof BdApi.ReactDOM;
+}
+
+export default class Api{
+    private readonly pluginName: string;
+    private _nestStore!: any;
+
+    @Memoize() get Modules() { return new Modules(); }
+    @Memoize() get Patcher() { return Patcher(this.pluginName); }
+    @Memoize() get Styler() { return new Styler(this.pluginName); }
+    @Memoize() get Dispatcher() { return new Dispatcher(); }
+    @Memoize() get Data() { return (this._nestStore || (this._nestStore = Data(this.pluginName))).data; }
+    @Memoize() get Settings() { return (this._nestStore || (this._nestStore = Data(this.pluginName))).settings; }
+    @Memoize() get Logger() { return Logger(this.pluginName); }
     // Completely static API parts
     Modals = Modals;
     Notices = Notices;
@@ -24,13 +45,6 @@ export default class API{
     ReactDOM = BdApi.ReactDOM;
 
     constructor(pluginName: string){
-        this.Modules = new Modules();
-        this.Patcher = new Patcher(pluginName);
-        this.Styler = new Styler(pluginName);
-        this.Dispatcher = new Dispatcher();
-        this.Logger = new Logger(pluginName);
-        const data = Data(pluginName);
-        this.Data = data.data;
-        this.Settings = data.settings;
+        this.pluginName = pluginName;
     }
 }

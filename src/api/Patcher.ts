@@ -9,24 +9,20 @@ type PatcherOptions = {
     displayName?: string;
     forcePatch?: boolean;
 };
+export interface Patcher{
+    before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): UnpatchFn;
+    after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): UnpatchFn;
+    instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): UnpatchFn;
+    unpatchAll(): void;
+}
 
-export default class Patcher{
-    pluginName: string;
+const BDPatcher = BdApi.Patcher;
 
-    constructor(pluginName: string){
-        this.pluginName = pluginName;
-    }
-
-    before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): UnpatchFn {
-        return BdApi.Patcher.before(this.pluginName, target, methodName, callback, options);
-    }
-    after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): UnpatchFn {
-        return BdApi.Patcher.after(this.pluginName, target, methodName, callback, options);
-    }
-    instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): UnpatchFn {
-        return BdApi.Patcher.instead(this.pluginName, target, methodName, callback, options);
-    }
-    unpatchAll(): void {
-        return BdApi.Patcher.unpatchAll(this.pluginName);
-    }
+export default function Patcher(pluginName: string): Patcher {
+    return {
+        before: BDPatcher.before.bind(BDPatcher, pluginName),
+        after: BDPatcher.after.bind(BDPatcher, pluginName),
+        instead: BDPatcher.instead.bind(BDPatcher, pluginName),
+        unpatchAll: BDPatcher.unpatchAll.bind(BDPatcher, pluginName)
+    };
 }

@@ -1,30 +1,19 @@
+import { Memoize } from "typescript-memoize";
 import StaticModules, { Predicate } from "@common/Modules";
 
 export default class Modules {
-    findCache = new Map<string, any>();
-    findAllCache = new Map<string, any[]|undefined>();
+    private readonly findCache = new Map<string, any>();
+    private readonly findAllCache = new Map<string, any[]|undefined>();
 
-    findByProps(...props: string[]): any {
-        return StaticModules.findByProps(...props);
+    findByProps = StaticModules.findByProps;
+    findByDisplayName = StaticModules.findByDisplayName;
+
+    @Memoize() find(name: string, predicate: Predicate): any {
+        return StaticModules.find(predicate);
     }
 
-    findByDisplayName(displayName: string): any {
-        return StaticModules.findByDisplayName(displayName);
-    }
 
-    find(name: string, predicate: Predicate): any {
-        if (this.findCache.has(name)) return this.findCache.get(name);
-
-        const ret = StaticModules.find(predicate);
-        this.findCache.set(name, ret);
-        return ret;
-    }
-
-    findAll(name: string, predicate: Predicate): any[]|undefined {
-        if (this.findAllCache.has(name)) return this.findAllCache.get(name);
-
-        const ret = StaticModules.findAll(predicate);
-        this.findAllCache.set(name, ret);
-        return ret;
+    @Memoize() findAll(name: string, predicate: Predicate): any[]|undefined {
+        return StaticModules.findAll(predicate);
     }
 }

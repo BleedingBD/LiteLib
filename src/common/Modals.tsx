@@ -53,7 +53,7 @@ export default class Modals{
                 <ModalHeader separator="false" className="ll-modal-header">
                     <FormTitle tag="h4">{title}</FormTitle>
                 </ModalHeader>,
-                <ModalContent className="ll-modal-content">child</ModalContent>,
+                <ModalContent className="ll-modal-content">{child}</ModalContent>,
                 <ModalFooter className="ll-modal-footer">
                     <Button className="bd-button" onClick={props.onClose}>
                         {Messages?.DONE||"Done"}
@@ -86,8 +86,8 @@ export default class Modals{
             return;
         }
         if (plugin.instance.getChangelogPanel) {
-            const panel = plugin.instance.getSettingsPanel();
-            if (panel) Modals.show(`${pluginName} Settings`, panel);
+            const panel = plugin.instance.getChangelogPanel();
+            if (panel) Modals.show(`${pluginName} Changelog (@${plugin.version})`, panel);
         }
     }
 }

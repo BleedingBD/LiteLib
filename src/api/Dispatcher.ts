@@ -11,10 +11,9 @@ interface DiscordDispatcher {
     dirtyDispatch(payload: any): void;
 }
 
-const discordDispatcher: DiscordDispatcher = BdApi.findModuleByProps("subscribe","unsubscribe") || BdApi.findModuleByProps("dispatch","dirtyDispatch")
-
+const discordDispatcher: DiscordDispatcher = Modules.findByProps("subscribe","unsubscribe") || Modules.findByProps("dispatch","dirtyDispatch");
 export default class Dispatcher{
-    readonly ActionTypes: {[action: string]: string} = Modules.findByProps("ActionTypes").ActionTypes;
+    readonly ActionTypes: Record<string, string> = Modules.findByProps("ActionTypes")?.ActionTypes;
 
     constructor(){
         if (!this.ActionTypes) {

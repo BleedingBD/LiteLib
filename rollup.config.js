@@ -1,8 +1,7 @@
-import alias from "@rollup/plugin-alias"
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
-// import {terser} from "rollup-plugin-terser";
+import {terser} from "rollup-plugin-terser";
 import license from "rollup-plugin-license";
 
 export default {
@@ -18,14 +17,20 @@ export default {
         }),
         typescript(),
         commonjs(),
-        // terser({
-        //     compress: {
-        //         ecma: 2015,
-        //         keep_classnames: true,
-        //         keep_fnames: true
-        //     },
-        //     mangle: false
-        // }),
+        terser({
+            compress: {
+                ecma: 2018,
+                keep_classnames: true,
+                keep_fnames: true,
+                passes: 3
+            },
+            mangle: false,
+            format: {
+                beautify: true,
+                ecma: 2018,
+                keep_numbers: true,
+            }
+        }),
         license({
             banner: {
                 commentStyle: "none",
