@@ -1,3 +1,5 @@
+import Logger from "@common/Logger";
+
 type NodeChild = Node | string | number;
 type NodeChildren = (NodeChild | NodeChildren | null)[];
 
@@ -25,3 +27,22 @@ export function createHTMLElement(
     applyChildren(element, children);
     return element;
 };
+
+export function suppressErrors(func: () => void, message?: string, async = false) {
+    const ret = BdApi.suppressErrors(func);
+    if (async && ret instanceof Promise) ret.catch(() => {Logger.trace("SuppressedError", "Error occurred in " + message, e);});
+}
+
+/*
+export function findInReactTree(root: any, predicate: (node: any) => boolean): any {
+    if (predicate(root)) return root;
+    if (Array.isArray(root)) {
+        for (const child of root) {
+            const found = findInReactTree(child, predicate);
+            if (found != null) return found;
+        }
+    } else {
+
+    }
+}
+*/

@@ -4,5 +4,5 @@
  * @description A lightweight library for creating BetterDiscord plugins.
  * @author Qb
  * @license Unlicense
- * @litelib [1.0.0,)
+ * @litelib ^1.0.0
  */
