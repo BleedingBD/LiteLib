@@ -6,7 +6,7 @@
  * @license Unlicense
  * @author John Doe
  * @invite gj7JFa6mF8
- * @litelib ^1.0.0
+ * @litelib ^0.1.0
  */
 const name = "ExamplePlugin"
 

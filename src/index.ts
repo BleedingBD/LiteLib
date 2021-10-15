@@ -12,10 +12,10 @@ declare global {
 
 window.LiteLib = Core;
 export default class extends Core.Plugin("LiteLib") {
-    updateAllInterval?: number;
+    updateAllInterval?: NodeJS.Timer;
 
     initialize(API: API) {
-        this.updateAllInterval = window.setInterval(()=>this.checkAllForUpdates(API), 30*60*1000)
+        this.updateAllInterval = setInterval(()=>this.checkAllForUpdates(), 30*60*1000);
     }
 
     firstLoad({ Logger }: API) {
@@ -29,15 +29,11 @@ export default class extends Core.Plugin("LiteLib") {
         });
     }
 
-    async checkAllForUpdates(API: API){
+    async checkAllForUpdates() {
         BdApi.Plugins.getAll().forEach(plugin => {
             if (plugin.litelib && plugin.version && plugin.updateUrl) {
                 Core.Updater.checkForUpdate(plugin.name);
             }
         });
-    }
-
-    getChangelogPanel() {
-        return "test";
     }
 }

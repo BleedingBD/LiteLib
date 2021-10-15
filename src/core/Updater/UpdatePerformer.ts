@@ -4,10 +4,6 @@ import Logger from "@common/Logger";
 import { parseMetadata } from "./MetadataParser";
 import PendingUpdateStore from "./PendingUpdatesStore";
 
-function getDefaultFilePath(pluginName: string): string {
-    return resolve(BdApi.Plugins.folder,`${pluginName}.plugin.js`)
-}
-
 export async function applyUpdate(pluginName: string): Promise<boolean> {
     try {
         const pendingUpdate = PendingUpdateStore.getPendingUpdate(pluginName);
@@ -20,7 +16,7 @@ export async function applyUpdate(pluginName: string): Promise<boolean> {
         const incomingMetadata = parseMetadata(fileContent);
         if(!incomingMetadata) return false;
 
-        const targetPath = incomingMetadata.filepath || getDefaultFilePath(incomingMetadata.name);
+        const targetPath = resolve(BdApi.Plugins.folder,incomingMetadata.pluginPath || `${pluginName}.plugin.js`);
         await promises.writeFile(targetPath, fileContent, "utf-8");
         
         const currentPath = resolve(BdApi.Plugins.folder, currentMetadata.filename);
