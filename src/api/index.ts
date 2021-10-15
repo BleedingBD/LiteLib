@@ -1,5 +1,5 @@
 import { Memoize } from 'typescript-memoize';
-import Data from "./Data";
+import DataStore from "./DataStore";
 import Dispatcher from "./Dispatcher";
 import Logger from "./Logger";
 import Modules from "./Modules";
@@ -27,14 +27,13 @@ export interface API {
 
 export default class Api{
     private readonly pluginName: string;
-    @Memoize() private get nestStore() { return Data(this.pluginName); }
 
     @Memoize() get Modules() { return new Modules(); }
     @Memoize() get Patcher() { return Patcher(this.pluginName); }
     @Memoize() get Styler() { return new Styler(this.pluginName); }
     @Memoize() get Dispatcher() { return new Dispatcher(); }
-    @Memoize() get Data() { return this.nestStore.data; }
-    @Memoize() get Settings() { return this.nestStore.settings; }
+    @Memoize() get Data() { return DataStore(this.pluginName,"data").store; }
+    @Memoize() get Settings(){ return DataStore(this.pluginName,"settings").store; }
     @Memoize() get Logger() { return Logger(this.pluginName); }
     // Completely static API parts
     Modals = Modals;
