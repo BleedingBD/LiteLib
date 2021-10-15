@@ -106,7 +106,7 @@ BdApi.injectCSS("ll-notices-style",`
 export declare type CloseFn = (immediately?: boolean) => void;
 
 export declare type NoticeOptions = {
-    type?: "info"|"warn"|"error"|"success";
+    type?: "info"|"warning"|"error"|"success";
     buttons?: {
         label: string;
         onClick?: (closeFn: ()=>void)=>void;
