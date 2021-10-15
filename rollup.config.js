@@ -20,7 +20,7 @@ export default {
         commonjs(),
         terser({
             compress: {
-                ecma: 2020,
+                ecma: 2019,
                 keep_classnames: true,
                 keep_fnames: true,
                 passes: 3
@@ -28,7 +28,7 @@ export default {
             mangle: false,
             format: {
                 beautify: true,
-                ecma: 2020,
+                ecma: 2019,
                 keep_numbers: true,
                 indent_level: 4
             }
