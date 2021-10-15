@@ -47,8 +47,7 @@ BdApi.injectCSS("ll-notices-style",`
     padding-left: 4px;
     padding-right: 28px;
     z-index: 101;
-    flex-shrink: 0;
-    flex-grow: 0;
+    flex: 0 0;
     box-shadow: var(--elevation-low);
     color: #fff;
     background: var(--color, var(--brand-experiment-600, #3C45A5));
@@ -120,26 +119,19 @@ export default class Notices{
     private static get baseClass() {return this.__baseClass || (this.__baseClass = Modules.findByProps("container", "base")?.base);}
 
     /** Shorthand for `type = "info"` for {@link module:Notices.show} */
-    static info(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "info"}));}
+    static info(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, {...options, type: "info"});}
     /** Shorthand for `type = "warning"` for {@link module:Notices.show} */
-    static warn(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "warning"}));}
+    static warn(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, {...options, type: "warning"});}
     /** Shorthand for `type = "error"` for {@link module:Notices.show} */
-    static error(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "error"}));}
+    static error(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, {...options, type: "error"});}
     /** Shorthand for `type = "success"` for {@link module:Notices.show} */
-    static success(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, Object.assign({}, options, {type: "success"}));}
-
-    private static joinClassNames(...classNames: (string|undefined)[]) {
-        return classNames.filter((n) => n).join(" ");
-    }
+    static success(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, {...options, type: "success"});}
 
     static show(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {
         const {type, buttons = [], timeout = 10000} = options;
-        const haveContainer = this.ensureContainer();
-        if (!haveContainer) return;
+        if (!this.ensureContainer()) return;
 
         const closeNotification = function (immediately = false) {
-            if (noticeElement == null) return false; // Check if it's already been removed
-
             // Immediately remove the notice without adding the closing class.
             if (immediately) return noticeElement.remove();
 
@@ -150,13 +142,13 @@ export default class Notices{
         const noticeElement = createHTMLElement(
             "div",
             {
-                className: this.joinClassNames("ll-notice", type && `ll-notice-${type}`)
+                className: "ll-notice" + type?` ll-notice-${type}`:""
             },
             [
                 createHTMLElement("div", {className: "ll-notice-close", onclick: () => closeNotification()}),
                 createHTMLElement("span", {className: "ll-notice-content"}, content),
                 ...buttons.map((button) => {
-                    if (!button || !button.label || typeof(button.onClick) !== "function") return null;
+                    if (!button?.label || typeof(button.onClick) !== "function") return null;
                     return createHTMLElement(
                         "button",
                         {
@@ -171,9 +163,7 @@ export default class Notices{
 
         document.getElementById("ll-notices")!.appendChild(noticeElement);
 
-        if (timeout > 0) {
-            setTimeout(closeNotification, timeout);
-        }
+        if (timeout > 0) setTimeout(closeNotification, timeout);
 
         return closeNotification;
     }

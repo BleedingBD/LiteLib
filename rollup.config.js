@@ -2,6 +2,7 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import {terser} from "rollup-plugin-terser";
+import replace from "@rollup/plugin-replace";
 import license from "rollup-plugin-license";
 
 export default {
@@ -19,7 +20,7 @@ export default {
         commonjs(),
         terser({
             compress: {
-                ecma: 2018,
+                ecma: 2020,
                 keep_classnames: true,
                 keep_fnames: true,
                 passes: 3
@@ -27,9 +28,16 @@ export default {
             mangle: false,
             format: {
                 beautify: true,
-                ecma: 2018,
+                ecma: 2020,
                 keep_numbers: true,
+                indent_level: 4
             }
+        }),
+        replace({
+            preventAssignment: false,
+            values: {
+                "    ": "\t"
+            } 
         }),
         license({
             banner: {

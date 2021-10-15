@@ -3,17 +3,10 @@ import Logger from "@common/Logger";
 type NodeChild = Node | string | number;
 type NodeChildren = (NodeChild | NodeChildren | null)[];
 
-function applyChild(element: Node, child: NodeChild) {
-    if (child instanceof Node) element.appendChild(child);
-    else element.appendChild(document.createTextNode(child.toString()));
-}
-
-function applyChildren(node: Node, children: NodeChildren) {
-    for (const child of children) {
-        if (!child && child !== 0) continue;
-
+function applyChildren(node: HTMLElement, children: NodeChildren) {
+    for (const child of children.filter(c=>c||c==0)) {
         if (Array.isArray(child)) applyChildren(node, child);
-        else applyChild(node, child);
+        else node.append(child as string|Node);
     }
 }
 
@@ -39,13 +32,11 @@ export function findInReactTree(root: any, predicate: (node: any) => boolean): a
     if (Array.isArray(root)) {
         for (const child of root) {
             const found = findInReactTree(child, predicate);
-            if (found != null) return found;
+            if (found) return found;
         }
     } else {
-        for (const key of Object.getOwnPropertyNames(root).filter(key=>walkable.includes(key))) {
-            const found = findInReactTree(root[key], predicate);
-            if (found != null) return found;
-        }
+        const found = walkable.find((key)=>root[key] && findInReactTree(root[key], predicate))
+        if (found) return found;
     }
     return null;
 }

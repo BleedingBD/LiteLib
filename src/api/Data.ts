@@ -5,7 +5,7 @@ import path from 'path';
 export default function Data(pluginName: string): any {
     const pluginPath = path.resolve(BdApi.Plugins.folder, pluginName + ".config.json")
 
-    let pluginData: {[key: string]: unknown};
+    let pluginData: any;
     if (!fs.existsSync(pluginPath)){
         pluginData = {};
     } else {

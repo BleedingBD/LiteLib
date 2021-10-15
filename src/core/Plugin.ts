@@ -19,6 +19,9 @@ export declare interface LiteLibPlugin extends BdPlugin {
     cleanup?(api: API): void;
     unpatch?(api: API): void;
     unstyle?(api: API): void;
+
+    reloadPatches(): void;
+    reloadStyles(): void;
 }
 
 export abstract class PluginBase implements LiteLibPlugin {
@@ -34,7 +37,7 @@ export abstract class PluginBase implements LiteLibPlugin {
         if(typeof this.firstLoad == "function") setTimeout(()=>this.checkForFirstLaunch(),0);
         if(typeof this.getChangelogPanel == "function") setTimeout(()=>this.checkForChangelog(),0);
         setTimeout(()=>this.checkForUpdate,0);
-        if(typeof this.initialize == "function") this.initialize(this.API);
+        this.initialize?.(this.API);
     }
     initialize?(api: API): void;
     firstLoad?(api: API): void;
@@ -49,13 +52,22 @@ export abstract class PluginBase implements LiteLibPlugin {
     style?(api: API): void;
 
     stop(): void {
-        if(typeof this.cleanup == "function") this.cleanup(this.API);
-        if(typeof this.unpatch == "function") this.unpatch(this.API);
-        if(typeof this.unstyle == "function") this.unstyle(this.API)
+        this.cleanup?.(this.API);
+        this.unpatch?.(this.API);
+        this.unstyle?.(this.API)
     }
     cleanup?(api: API): void;
     unpatch?({Patcher}: API): void{ Patcher.unpatchAll(); }
     unstyle?({Styler}: API): void{ Styler.removeAll(); }
+
+    reloadPatches(): void {
+        this.unpatch?.(this.API);
+        this.patch?.(this.API);
+    }
+    reloadStyles(): void {
+        this.unstyle?.(this.API);
+        this.style?.(this.API);
+    }
 
     async checkForFirstLaunch(): Promise<void> {
         const Data = this.API.Data;
