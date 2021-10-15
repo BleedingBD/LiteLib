@@ -30,10 +30,10 @@ export function createHTMLElement(
 
 export function suppressErrors(func: () => void, message?: string, async = false) {
     const ret = BdApi.suppressErrors(func);
-    if (async && ret instanceof Promise) ret.catch(() => {Logger.trace("SuppressedError", "Error occurred in " + message, e);});
+    if (async && ret instanceof Promise) ret.catch((e) => {Logger.trace("SuppressedError", "Error occurred in " + message, e);});
 }
 
-/*
+const walkable = ["props", "state", "children", "sibling", "child"];
 export function findInReactTree(root: any, predicate: (node: any) => boolean): any {
     if (predicate(root)) return root;
     if (Array.isArray(root)) {
@@ -42,7 +42,10 @@ export function findInReactTree(root: any, predicate: (node: any) => boolean): a
             if (found != null) return found;
         }
     } else {
-
+        for (const key of Object.getOwnPropertyNames(root).filter(key=>walkable.includes(key))) {
+            const found = findInReactTree(root[key], predicate);
+            if (found != null) return found;
+        }
     }
+    return null;
 }
-*/
