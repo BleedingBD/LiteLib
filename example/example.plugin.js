@@ -2,7 +2,7 @@
  * @name ExamplePlugin
  * @description An example plugin using LiteLib.
  * @version 1.0.0
- * @updateUrl https://example.com/example.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/example/example.plugin.js
  * @license Unlicense
  * @author John Doe
  * @invite gj7JFa6mF8
@@ -30,9 +30,9 @@ class {
                 cancelText: "Cancel",
                 onConfirm: () => {
                     const fs = require("fs").promises;
-                    fetch("")
+                    fetch("https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js")
                         .then(r=>r.text())
-                        .then(c=>fs.writeFile(require("path").join(BdApi.Plugins.folder, "0LiteLib.plugin.js"), pc)
+                        .then(c=>fs.writeFile(require("path").join(BdApi.Plugins.folder, "0LiteLib.plugin.js"), c))
                         .catch(_=>require("electron").shell.openExternal());
                 }
             }
