@@ -194,7 +194,7 @@ class Notices {
                 noticeElement.remove();
             }), 300);
         }, noticeElement = createHTMLElement("div", {
-            className: ` ll-notice-${type}`
+            className: "ll-notice" + (type ? ` ll-notice-${type}` : "")
         }, [ createHTMLElement("div", {
             className: "ll-notice-close",
             onclick: () => closeNotification()
@@ -217,6 +217,8 @@ class Notices {
         return container.prepend(noticeContainer), !0;
     }
 }
+
+Promise.resolve();
 
 const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/, escapedAtRegex = /^\\@/;
 
@@ -263,26 +265,7 @@ class PendingUpdateStore {
     }
 }
 
-async function applyUpdate(pluginName) {
-    try {
-        const pendingUpdate = PendingUpdateStore.getPendingUpdate(pluginName);
-        if (!pendingUpdate) return !1;
-        const {currentMetadata} = pendingUpdate, response = await fetch(currentMetadata.updateUrl), fileContent = await response.text(), incomingMetadata = parseMetadata(fileContent);
-        if (!incomingMetadata || !incomingMetadata.name) return !1;
-        const targetConfigPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.configPath || `${incomingMetadata.name}.config.json`), currentConfigPath = path.resolve(BdApi.Plugins.folder, currentMetadata.configPath || `${currentMetadata.name}.config.json`);
-        targetConfigPath != currentConfigPath && await fs.promises.rename(currentConfigPath, targetConfigPath);
-        const targetPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.pluginPath || `${incomingMetadata.name}.plugin.js`);
-        await fs.promises.writeFile(targetPath, fileContent, "utf-8");
-        const currentPath = path.resolve(BdApi.Plugins.folder, currentMetadata.filename);
-        return targetPath != currentPath && await fs.promises.unlink(currentPath), PendingUpdateStore.removePendingUpdate(pluginName), 
-        !0;
-    } catch (e) {
-        return Logger$1.error("Updater", `Error while trying to update ${pluginName}`, e), 
-        !1;
-    }
-}
-
-BdApi.injectCSS("ll-update-notice", "");
+BdApi.injectCSS("ll-update-notice", "\n.ll-update-notice-plugin {\n	cursor: pointer;\n	padding-left: .2em;\n}\n.ll-update-notice-plugin:hover {\n	text-decoration: underline;\n}\n");
 
 const pluginsList = createHTMLElement("span", {
     className: "ll-update-notice-list"
@@ -306,18 +289,32 @@ PendingUpdateStore.subscribe((pendingUpdates => {
             buttons: [ {
                 label: "Update All",
                 onClick: () => {
-                    outdatedPlugins.forEach((plugin => applyUpdate(plugin))), currentCloseFunction(), 
-                    currentCloseFunction = void 0;
+                    outdatedPlugins.forEach((plugin => async function applyUpdate(pluginName) {
+                        try {
+                            const pendingUpdate = PendingUpdateStore.getPendingUpdate(pluginName);
+                            if (!pendingUpdate) return !1;
+                            const {currentMetadata} = pendingUpdate, response = await fetch(currentMetadata.updateUrl), fileContent = await response.text(), incomingMetadata = parseMetadata(fileContent);
+                            if (!incomingMetadata || !incomingMetadata.name) return !1;
+                            const targetConfigPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.configPath || `${incomingMetadata.name}.config.json`), currentConfigPath = path.resolve(BdApi.Plugins.folder, currentMetadata.configPath || `${currentMetadata.name}.config.json`);
+                            targetConfigPath != currentConfigPath && await fs.promises.rename(currentConfigPath, targetConfigPath);
+                            const targetPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.pluginPath || `${incomingMetadata.name}.plugin.js`);
+                            await fs.promises.writeFile(targetPath, fileContent, "utf-8");
+                            const currentPath = path.resolve(BdApi.Plugins.folder, currentMetadata.filename);
+                            return targetPath != currentPath && await fs.promises.unlink(currentPath), PendingUpdateStore.removePendingUpdate(pluginName), 
+                            !0;
+                        } catch (e) {
+                            return Logger$1.error("Updater", `Error while trying to update ${pluginName}`, e), 
+                            !1;
+                        }
+                    }(plugin))), currentCloseFunction(), currentCloseFunction = void 0;
                 }
             } ]
         })), pluginsList.innerHTML = "", outdatedPlugins.forEach((plugin => {
-            pluginsList.appendChild(document.createTextNode(" ")), pluginsList.appendChild(createHTMLElement("strong", {
+            pluginsList.append(createHTMLElement("strong", {
                 className: "ll-update-notice-plugin",
-                onclick: () => {
-                    applyUpdate(plugin);
-                }
-            }, plugin));
-        }))) : isShown && currentCloseFunction();
+                onclick: () => {}
+            }, plugin)), pluginsList.append(", ");
+        })), pluginsList.lastChild?.remove?.()) : isShown && currentCloseFunction();
     })(pendingUpdates.map((pendingUpdate => pendingUpdate.name)));
 }));
 
@@ -424,8 +421,6 @@ class Dispatcher {
         return discordDispatcher.dirtyDispatch(payload);
     }
 }
-
-Promise.resolve();
 
 class DataStore extends class EventEmitter {
     listeners=new Map;

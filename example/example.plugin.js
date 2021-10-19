@@ -6,7 +6,7 @@
  * @license Unlicense
  * @author John Doe
  * @invite gj7JFa6mF8
- * @litelib ^0.1.0
+ * @litelib ^0.2.0
  */
 
 module.exports = window.LiteLib ?
