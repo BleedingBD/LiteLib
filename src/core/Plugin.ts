@@ -4,6 +4,7 @@ import Updater from "./Updater";
 import API from "../api";
 import React from "react";
 import { BdPlugin } from "../../@types/betterdiscord__bdapi";
+import { parseMetadata } from "@common/MetadataParser";
 
 export declare interface LiteLibPlugin extends BdPlugin {
     API: API;
@@ -22,15 +23,25 @@ export declare interface LiteLibPlugin extends BdPlugin {
 
     reloadPatches(): void;
     reloadStyles(): void;
+
+    css?(): string;
+    getUpdateUrl?(): string;
+
+    onDataChanged?(key: string, value: any): void;
+    onSettingsChanged?(key: string, value: any): void;
 }
 
 export abstract class PluginBase implements LiteLibPlugin {
+    readonly metadata: Record<string, string>;
     readonly name: string;
     readonly API: API;
 
-    constructor(pluginName: string){
-        this.name = pluginName;
-        this.API = new API(pluginName);
+    constructor(metadata: Record<string, string>) {
+        this.metadata = metadata;
+        this.name = metadata.name;
+        this.API = new API(metadata);
+        this.API.Data.on("change", (key, value) => this.onDataChanged?.(key, value));
+        this.API.Settings.on("change", (key, value) => this.onSettingsChanged?.(key, value));
     }
 
     load(): void {
@@ -42,10 +53,31 @@ export abstract class PluginBase implements LiteLibPlugin {
     initialize?(api: API): void;
     firstLoad?(api: API): void;
 
+    async checkForFirstLaunch(): Promise<void> {
+        const Data = this.API.Data;
+        if (!Data.get("firstLoad")) {
+            this.firstLoad!(this.API);
+            Data.set("firstLoad", true);
+        }
+    }
+    async checkForChangelog(): Promise<void> {
+        const currentVersion = BdApi.Plugins.get(this.name)?.version;
+        if (!currentVersion) return;
+        if (this.API.Data.get("version", currentVersion) === currentVersion) return;
+
+        this.API.Modals.showPluginChangelog(this.name);
+        this.API.Data.set("version", currentVersion);
+    }
+    async checkForUpdate(): Promise<void> {
+        await Updater.checkForUpdate(this.name);
+    }
+
     start(): void {
-        if(typeof this.setup == "function") this.setup(this.API);
-        if(typeof this.patch == "function") this.patch(this.API);
-        if(typeof this.style == "function") this.style(this.API);
+        const API = this.API;
+        this.setup?.(API);
+        this.patch?.(API);
+        this.style?.(API);
+        if(typeof this.css == "function") API.Styler.add("css", this.css());
     }
     setup?(api: API): void;
     patch?(api: API): void;
@@ -67,34 +99,32 @@ export abstract class PluginBase implements LiteLibPlugin {
     reloadStyles(): void {
         this.unstyle?.(this.API);
         this.style?.(this.API);
-    }
-
-    async checkForFirstLaunch(): Promise<void> {
-        const Data = this.API.Data;
-        if (!("firstLoad" in Data) || !Data.firstLoad) {
-            this.firstLoad!(this.API);
-            Data.firstLoad = true;
-        }
-    }
-    async checkForChangelog(): Promise<void> {
-        const currentVersion = BdApi.Plugins.get(this.name)?.version;
-        if (!currentVersion) return;
-        if (!("version" in this.API.Data) || (this.API.Data.version != currentVersion)) {
-            this.API.Modals.showPluginChangelog(this.name);
-            this.API.Data.version = currentVersion;
-        }
-    }
-    async checkForUpdate(): Promise<void> {
-        await Updater.checkForUpdate(this.name);
+        if(typeof this.css == "function") this.API.Styler.add("css", this.css());
     }
 
     getChangelogPanel?(): Node|React.FC|React.Component|string;
+
+    css?(): string;
+
+    onDataChanged?(key: string, value: any): void;
+    onSettingsChanged?(key: string, value: any): void;
 }
 
-export default function(pluginName: string): typeof PluginBase & {new(): PluginBase} {
+export default function(): typeof PluginBase & {new(): PluginBase} {
+    const scriptTag = document.head.querySelector(`script[id$=-script-container]`);
+    if (scriptTag && scriptTag.textContent) {
+        const metadata = parseMetadata(scriptTag.textContent, false);
+        if (metadata?.name) {
+            return class extends PluginBase {
+                constructor() {
+                    super(metadata ?? {});
+                }
+            }
+        }
+    }
     return class extends PluginBase {
         constructor() {
-            super(pluginName);
+            super({name: "Invalid Plugin", description: "The metadata for the plugin couldn't be loaded.", version: "?.?.?"});
         }
     }
 }

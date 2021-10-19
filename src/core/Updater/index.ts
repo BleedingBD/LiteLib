@@ -1,6 +1,6 @@
 import { update as updateNotice } from './UpdateNotice';
 import PendingUpdateStore from './PendingUpdatesStore';
-import { parseMetadata } from './MetadataParser';
+import { parseMetadata } from '@common/MetadataParser';
 import Logger from '@common/Logger';
 import { gt, valid } from './Semver';
 
@@ -12,11 +12,12 @@ export default class Updater {
     static async checkForUpdate(pluginName: string){
         const currentMeta = BdApi.Plugins.get(pluginName);
         const currentVersion = currentMeta?.version;
-        if (!currentVersion || !currentMeta.updateUrl || !valid(currentVersion)) return;
+        const updateUrl = currentMeta?.updateUrl;
+        if (!currentVersion || !updateUrl || !valid(currentVersion)) return;
         Logger.debug("Updater",`Checking ${pluginName} (@${currentVersion}) for updates.`);
 
         try {
-            const remoteMeta = await this.fetchMetadata(currentMeta.updateUrl);
+            const remoteMeta = await this.fetchMetadata(updateUrl);
             const remoteVersion = remoteMeta?.version;
             if(remoteVersion && valid(remoteVersion)){
                 if(gt(remoteVersion, currentVersion)){

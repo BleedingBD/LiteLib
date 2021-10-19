@@ -8,10 +8,9 @@
  * @invite gj7JFa6mF8
  * @litelib ^0.1.0
  */
-const name = "ExamplePlugin"
 
 module.exports = window.LiteLib ?
-class extends window.LiteLib.Plugin(name) {
+class extends window.LiteLib.Plugin() {
     style({Styler}){
         Styler.add(`
             .some-class {
@@ -24,7 +23,7 @@ class {
     load(){
         BdApi.showConfirmationModal(
             "Library plugin is needed",
-            [`The library plugin needed for ${name} is missing. Please click Download to install it.`],
+            [`The library plugin needed is missing. Please click Download to install it.`],
             {
                 confirmText: "Download",
                 cancelText: "Cancel",

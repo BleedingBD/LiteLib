@@ -4,10 +4,10 @@
  * @description A lightweight library for creating BetterDiscord plugins.
  * @author Qb
  * @license Unlicense
- * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js
  * @litelib ^0.1.0
  * @pluginPath 0LiteLib.plugin.js
  * @configPath 0LiteLib.config.json
+ * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js
  */
 "use strict";
 
@@ -220,8 +220,8 @@ class Notices {
 
 const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/, escapedAtRegex = /^\\@/;
 
-function parseMetadata(fileContent) {
-    if (!fileContent.startsWith("/**")) return;
+function parseMetadata(fileContent, strict = !0) {
+    if (strict && !fileContent.startsWith("/**") || !fileContent.includes("/**")) return;
     const block = fileContent.split("/**", 2)[1].split("*/", 1)[0], out = {};
     let field = "", accum = "";
     for (const line of block.split(splitRegex)) if (0 !== line.length) if ("@" === line.charAt(0) && " " !== line.charAt(1)) {
@@ -268,8 +268,10 @@ async function applyUpdate(pluginName) {
         const pendingUpdate = PendingUpdateStore.getPendingUpdate(pluginName);
         if (!pendingUpdate) return !1;
         const {currentMetadata} = pendingUpdate, response = await fetch(currentMetadata.updateUrl), fileContent = await response.text(), incomingMetadata = parseMetadata(fileContent);
-        if (!incomingMetadata) return !1;
-        const targetPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.pluginPath || `${pluginName}.plugin.js`);
+        if (!incomingMetadata || !incomingMetadata.name) return !1;
+        const targetConfigPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.configPath || `${incomingMetadata.name}.config.json`), currentConfigPath = path.resolve(BdApi.Plugins.folder, currentMetadata.configPath || `${currentMetadata.name}.config.json`);
+        targetConfigPath != currentConfigPath && await fs.promises.rename(currentConfigPath, targetConfigPath);
+        const targetPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.pluginPath || `${incomingMetadata.name}.plugin.js`);
         await fs.promises.writeFile(targetPath, fileContent, "utf-8");
         const currentPath = path.resolve(BdApi.Plugins.folder, currentMetadata.filename);
         return targetPath != currentPath && await fs.promises.unlink(currentPath), PendingUpdateStore.removePendingUpdate(pluginName), 
@@ -321,11 +323,11 @@ PendingUpdateStore.subscribe((pendingUpdates => {
 
 class Updater {
     static async checkForUpdate(pluginName) {
-        const currentMeta = BdApi.Plugins.get(pluginName), currentVersion = currentMeta?.version;
-        if (currentVersion && currentMeta.updateUrl && valid(currentVersion)) {
+        const currentMeta = BdApi.Plugins.get(pluginName), currentVersion = currentMeta?.version, updateUrl = currentMeta?.updateUrl;
+        if (currentVersion && updateUrl && valid(currentVersion)) {
             Logger$1.debug("Updater", `Checking ${pluginName} (@${currentVersion}) for updates.`);
             try {
-                const remoteMeta = await this.fetchMetadata(currentMeta.updateUrl), remoteVersion = remoteMeta?.version;
+                const remoteMeta = await this.fetchMetadata(updateUrl), remoteVersion = remoteMeta?.version;
                 if (remoteVersion && valid(remoteVersion) && function semiver(a, b, bool) {
                     return a = a.split("."), b = b.split("."), fn(a[0], b[0]) || fn(a[1], b[1]) || (b[2] = b.slice(2).join("."), 
                     (bool = /[.-]/.test(a[2] = a.slice(2).join("."))) == /[.-]/.test(b[2]) ? fn(a[2], b[2]) : bool ? -1 : 1);
@@ -340,157 +342,6 @@ class Updater {
     static async fetchMetadata(url) {
         const response = await fetch(url);
         return parseMetadata(await response.text());
-    }
-}
-
-var commonjsGlobal = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof self ? self : {}, cjs = {}, Events = {};
-
-Object.defineProperty(Events, "__esModule", {
-    value: !0
-}), Events.default = Object.freeze({
-    GET: "GET",
-    SET: "SET",
-    DELETE: "DELETE",
-    UPDATE: "UPDATE"
-});
-
-var make$1 = {}, EventEmitter$1 = {}, __importDefault$1 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
-    return mod && mod.__esModule ? mod : {
-        default: mod
-    };
-};
-
-Object.defineProperty(EventEmitter$1, "__esModule", {
-    value: !0
-});
-
-const Events_1 = __importDefault$1(Events);
-
-EventEmitter$1.default = class EventEmitter {
-    constructor() {
-        this.listeners = Object.values(Events_1.default).reduce(((acc, val) => (acc[val] = new Set, 
-        acc)), {}), this.on = function(event, listener) {
-            if (this.listeners[event].has(listener)) throw Error(`This listener on ${event} already exists.`);
-            this.listeners[event].add(listener);
-        }, this.once = function(event, listener) {
-            const onceListener = (event, data) => {
-                this.off(event, onceListener), listener(event, data);
-            };
-            this.on(event, onceListener);
-        }, this.off = function(event, listener) {
-            this.listeners[event].delete(listener);
-        }, this.emit = function(event, data) {
-            for (const listener of this.listeners[event]) listener(event, data);
-        };
-        for (const event of Object.values(Events_1.default)) this[event.toLowerCase()] = data => {
-            this.emit(event, data);
-        };
-    }
-};
-
-var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
-    return mod && mod.__esModule ? mod : {
-        default: mod
-    };
-};
-
-Object.defineProperty(make$1, "__esModule", {
-    value: !0
-});
-
-const EventEmitter_1 = __importDefault(EventEmitter$1);
-
-function DataStore(pluginName, key) {
-    const pluginData = BdApi.getData(pluginName, key), nest = cjs.make(pluginData), saveFn = () => setTimeout((() => BdApi.saveData(pluginName, key, pluginData)), 0);
-    return nest.on(cjs.Events.SET, saveFn), nest.on(cjs.Events.DELETE, saveFn), nest.on(cjs.Events.UPDATE, saveFn), 
-    nest;
-}
-
-make$1.default = function make(data = {}, {nestArrays = !0} = {}) {
-    const emitter = new EventEmitter_1.default;
-    return Object.assign({
-        store: function createProxy(target, root, path) {
-            return new Proxy(target, {
-                get(target, property) {
-                    const newPath = [ ...path, property ], value = target[property];
-                    return null != value ? (emitter.get({
-                        path: newPath,
-                        value
-                    }), !nestArrays && Array.isArray(value) ? value : "object" == typeof value ? createProxy(value, root, newPath) : value) : createProxy(target[property] = {}, root, newPath);
-                },
-                set: (target, property, value) => (target[property] = value, emitter.set({
-                    path: [ ...path, property ],
-                    value
-                }), !0),
-                deleteProperty: (target, property) => delete target[property] && (emitter.delete({
-                    path: [ ...path, property ]
-                }), !0),
-                has: (target, property) => ("object" != typeof target[property] || 0 !== Object.keys(target[property]).length) && property in target
-            });
-        }(data, data, []),
-        ghost: data
-    }, emitter);
-}, function(exports) {
-    var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
-        return mod && mod.__esModule ? mod : {
-            default: mod
-        };
-    };
-    Object.defineProperty(exports, "__esModule", {
-        value: !0
-    }), exports.make = exports.Events = void 0;
-    var Events_1 = Events;
-    Object.defineProperty(exports, "Events", {
-        enumerable: !0,
-        get: function() {
-            return __importDefault(Events_1).default;
-        }
-    });
-    var make_1 = make$1;
-    Object.defineProperty(exports, "make", {
-        enumerable: !0,
-        get: function() {
-            return __importDefault(make_1).default;
-        }
-    });
-}(cjs);
-
-const discordDispatcher = Modules$1.findByProps("subscribe", "unsubscribe") || Modules$1.findByProps("dispatch", "dirtyDispatch");
-
-class Dispatcher {
-    ActionTypes=Modules$1.findByProps("ActionTypes")?.ActionTypes;
-    constructor() {
-        this.ActionTypes || (Logger$1.warn("Dispatcher", "ActionTypes not found, defaulting to identity proxy."), 
-        this.ActionTypes = new Proxy({}, {
-            get: (_, prop) => prop,
-            set: () => !1
-        }));
-    }
-    subscriptions=new Map;
-    subscribe(action, listener) {
-        this.subscriptions.has(action) || this.subscriptions.set(action, new Set);
-        const actionSubscriptions = this.subscriptions.get(action);
-        return actionSubscriptions.has(listener) && (discordDispatcher.subscribe(action, listener), 
-        actionSubscriptions.add(listener)), () => this.unsubscribe(action, listener);
-    }
-    unsubscribe(action, listener) {
-        if (!this.subscriptions.has(action)) return;
-        const actionSubscriptions = this.subscriptions.get(action);
-        if (listener) actionSubscriptions.has(listener) && (discordDispatcher.unsubscribe(action, listener), 
-        actionSubscriptions.delete(listener)); else {
-            for (const listener of actionSubscriptions) discordDispatcher.unsubscribe(action, listener);
-            actionSubscriptions.clear();
-        }
-    }
-    unsubscribeAll() {
-        for (const action of this.subscriptions.keys()) this.unsubscribe(action);
-        this.subscriptions.clear();
-    }
-    dispatch(payload) {
-        return discordDispatcher.dispatch(payload);
-    }
-    dirtyDispatch(payload) {
-        return discordDispatcher.dirtyDispatch(payload);
     }
 }
 
@@ -533,6 +384,93 @@ class Styler {
         for (const key of this.styles) BdApi.clearCSS(key);
         this.styles.clear(), this.index = 0;
     }
+}
+
+const discordDispatcher = Modules$1.findByProps("subscribe", "unsubscribe") || Modules$1.findByProps("dispatch", "dirtyDispatch");
+
+class Dispatcher {
+    ActionTypes=Modules$1.findByProps("ActionTypes")?.ActionTypes;
+    constructor() {
+        this.ActionTypes || (Logger$1.warn("Dispatcher", "ActionTypes not found, defaulting to identity proxy."), 
+        this.ActionTypes = new Proxy({}, {
+            get: (_, prop) => prop,
+            set: () => !1
+        }));
+    }
+    subscriptions=new Map;
+    subscribe(action, listener) {
+        this.subscriptions.has(action) || this.subscriptions.set(action, new Set);
+        const actionSubscriptions = this.subscriptions.get(action);
+        return actionSubscriptions.has(listener) && (discordDispatcher.subscribe(action, listener), 
+        actionSubscriptions.add(listener)), () => this.unsubscribe(action, listener);
+    }
+    unsubscribe(action, listener) {
+        if (!this.subscriptions.has(action)) return;
+        const actionSubscriptions = this.subscriptions.get(action);
+        if (listener) actionSubscriptions.has(listener) && (discordDispatcher.unsubscribe(action, listener), 
+        actionSubscriptions.delete(listener)); else {
+            for (const listener of actionSubscriptions) discordDispatcher.unsubscribe(action, listener);
+            actionSubscriptions.clear();
+        }
+    }
+    unsubscribeAll() {
+        for (const action of this.subscriptions.keys()) this.unsubscribe(action);
+        this.subscriptions.clear();
+    }
+    dispatch(payload) {
+        return discordDispatcher.dispatch(payload);
+    }
+    dirtyDispatch(payload) {
+        return discordDispatcher.dirtyDispatch(payload);
+    }
+}
+
+Promise.resolve();
+
+class DataStore extends class EventEmitter {
+    listeners=new Map;
+    on(event, listener) {
+        return this.listeners.has(event) || this.listeners.set(event, []), this.listeners.get(event)?.push?.(listener), 
+        this;
+    }
+    off(event, listener) {
+        if (this.listeners.has(event)) {
+            const listeners = this.listeners.get(event), index = listeners.indexOf(listener);
+            index > 0 && listeners.splice(index, 1);
+        }
+        return this;
+    }
+    emit(event, ...args) {
+        if (this.listeners.has(event)) {
+            const listeners = this.listeners.get(event);
+            for (const listener of listeners) listener(...args);
+        }
+        return this;
+    }
+} {
+    key;
+    configPath;
+    data;
+    constructor(configPath, key) {
+        super(), this.key = key, this.configPath = configPath, this.data = BdApi.getData(this.configPath, this.key) || {};
+    }
+    has(key) {
+        return key in this.data;
+    }
+    get(key, defaultValue) {
+        return this.data[key] ?? defaultValue;
+    }
+    set(key, value) {
+        if (void 0 === value) return this.delete(key);
+        this.data[key] = value, this.emit("change", key, value), this.syncData();
+    }
+    delete(key) {
+        delete this.data[key], this.emit("change", key, void 0), this.syncData();
+    }
+    on(event, listener) {
+        return super.on(event, listener);
+    }
+    syncData() {}
 }
 
 const React = BdApi.React, ModalActions = Modules$1.findByProps("openModal", "updateModal"), FormTitle = Modules$1.findByDisplayName("FormTitle"), Button = Modules$1.findByProps("ButtonColors").default, {ModalRoot, ModalHeader, ModalContent, ModalFooter, ModalSize} = Modules$1.findByProps("ModalRoot"), Messages = Modules$1.findByProps("Messages", "setLocale")?.Messages;
@@ -632,6 +570,7 @@ class Toasts {
 }
 
 class Api {
+    pluginMetadata;
     pluginName;
     get Modules() {
         return new Modules;
@@ -653,10 +592,10 @@ class Api {
         return new Dispatcher;
     }
     get Data() {
-        return DataStore(this.pluginName, "data").store;
+        return new DataStore(this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") || this.pluginName, "data");
     }
     get Settings() {
-        return DataStore(this.pluginName, "settings").store;
+        return new DataStore(this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") || this.pluginName, "settings");
     }
     get Logger() {
         return function Logger(pluginName) {
@@ -676,65 +615,83 @@ class Api {
     Toasts=Toasts;
     React=BdApi.React;
     ReactDOM=BdApi.ReactDOM;
-    constructor(pluginName) {
-        this.pluginName = pluginName;
+    constructor(pluginMetadata) {
+        this.pluginMetadata = pluginMetadata, this.pluginName = pluginMetadata.name;
     }
-}
-
-function Plugin(pluginName) {
-    return class extends class PluginBase {
-        name;
-        API;
-        constructor(pluginName) {
-            this.name = pluginName, this.API = new Api(pluginName);
-        }
-        load() {
-            "function" == typeof this.firstLoad && setTimeout((() => this.checkForFirstLaunch()), 0), 
-            "function" == typeof this.getChangelogPanel && setTimeout((() => this.checkForChangelog()), 0), 
-            setTimeout((() => this.checkForUpdate), 0), this.initialize?.(this.API);
-        }
-        start() {
-            "function" == typeof this.setup && this.setup(this.API), "function" == typeof this.patch && this.patch(this.API), 
-            "function" == typeof this.style && this.style(this.API);
-        }
-        stop() {
-            this.cleanup?.(this.API), this.unpatch?.(this.API), this.unstyle?.(this.API);
-        }
-        unpatch({Patcher}) {
-            Patcher.unpatchAll();
-        }
-        unstyle({Styler}) {
-            Styler.removeAll();
-        }
-        reloadPatches() {
-            this.unpatch?.(this.API), this.patch?.(this.API);
-        }
-        reloadStyles() {
-            this.unstyle?.(this.API), this.style?.(this.API);
-        }
-        async checkForFirstLaunch() {
-            const Data = this.API.Data;
-            "firstLoad" in Data && Data.firstLoad || (this.firstLoad(this.API), Data.firstLoad = !0);
-        }
-        async checkForChangelog() {
-            const currentVersion = BdApi.Plugins.get(this.name)?.version;
-            currentVersion && ("version" in this.API.Data && this.API.Data.version == currentVersion || (this.API.Modals.showPluginChangelog(this.name), 
-            this.API.Data.version = currentVersion));
-        }
-        async checkForUpdate() {
-            await Updater.checkForUpdate(this.name);
-        }
-    } {
-        constructor() {
-            super(pluginName);
-        }
-    };
 }
 
 __decorate([ Memoize() ], Api.prototype, "Modules", null), __decorate([ Memoize() ], Api.prototype, "Patcher", null), 
 __decorate([ Memoize() ], Api.prototype, "Styler", null), __decorate([ Memoize() ], Api.prototype, "Dispatcher", null), 
 __decorate([ Memoize() ], Api.prototype, "Data", null), __decorate([ Memoize() ], Api.prototype, "Settings", null), 
 __decorate([ Memoize() ], Api.prototype, "Logger", null);
+
+class PluginBase {
+    metadata;
+    name;
+    API;
+    constructor(metadata) {
+        this.metadata = metadata, this.name = metadata.name, this.API = new Api(metadata), 
+        this.API.Data.on("change", ((key, value) => this.onDataChanged?.(key, value))), 
+        this.API.Settings.on("change", ((key, value) => this.onSettingsChanged?.(key, value)));
+    }
+    load() {
+        "function" == typeof this.firstLoad && setTimeout((() => this.checkForFirstLaunch()), 0), 
+        "function" == typeof this.getChangelogPanel && setTimeout((() => this.checkForChangelog()), 0), 
+        setTimeout((() => this.checkForUpdate), 0), this.initialize?.(this.API);
+    }
+    async checkForFirstLaunch() {
+        const Data = this.API.Data;
+        Data.get("firstLoad") || (this.firstLoad(this.API), Data.set("firstLoad", !0));
+    }
+    async checkForChangelog() {
+        const currentVersion = BdApi.Plugins.get(this.name)?.version;
+        currentVersion && this.API.Data.get("version", currentVersion) !== currentVersion && (this.API.Modals.showPluginChangelog(this.name), 
+        this.API.Data.set("version", currentVersion));
+    }
+    async checkForUpdate() {
+        await Updater.checkForUpdate(this.name);
+    }
+    start() {
+        const API = this.API;
+        this.setup?.(API), this.patch?.(API), this.style?.(API), "function" == typeof this.css && API.Styler.add("css", this.css());
+    }
+    stop() {
+        this.cleanup?.(this.API), this.unpatch?.(this.API), this.unstyle?.(this.API);
+    }
+    unpatch({Patcher}) {
+        Patcher.unpatchAll();
+    }
+    unstyle({Styler}) {
+        Styler.removeAll();
+    }
+    reloadPatches() {
+        this.unpatch?.(this.API), this.patch?.(this.API);
+    }
+    reloadStyles() {
+        this.unstyle?.(this.API), this.style?.(this.API), "function" == typeof this.css && this.API.Styler.add("css", this.css());
+    }
+}
+
+function Plugin() {
+    const scriptTag = document.head.querySelector("script[id$=-script-container]");
+    if (scriptTag && scriptTag.textContent) {
+        const metadata = parseMetadata(scriptTag.textContent, !1);
+        if (metadata?.name) return class extends PluginBase {
+            constructor() {
+                super(metadata ?? {});
+            }
+        };
+    }
+    return class extends PluginBase {
+        constructor() {
+            super({
+                name: "Invalid Plugin",
+                description: "The metadata for the plugin couldn't be loaded.",
+                version: "?.?.?"
+            });
+        }
+    };
+}
 
 var Core = Object.freeze({
     __proto__: null,
@@ -748,12 +705,20 @@ var Core = Object.freeze({
     Utilities
 });
 
-window.LiteLib = Core;
-
-class index extends(Plugin("LiteLib")){
+class LiteLib extends(Plugin()){
     updateAllInterval;
     initialize(API) {
-        this.updateAllInterval = setInterval((() => this.checkAllForUpdates()), 18e5);
+        this.updateAllInterval = setInterval((() => this.checkAllForUpdates(API)), API.Settings.get("updateInterval", 18e5));
+    }
+    defaultSettings() {
+        return {
+            updateInterval: {
+                value: 18e5
+            },
+            releaseBranch: {
+                value: "stable"
+            }
+        };
     }
     firstLoad({Logger}) {
         Logger.info("Detected first load.");
@@ -763,11 +728,11 @@ class index extends(Plugin("LiteLib")){
             fs.promises.utimes(path.resolve(BdApi.Plugins.folder, plugin.filename), time, time).catch((() => {})));
         }));
     }
-    async checkAllForUpdates() {
-        BdApi.Plugins.getAll().forEach((plugin => {
+    async checkAllForUpdates({Settings}) {
+        Settings.get("updateInterval", 18e5) <= 0 || BdApi.Plugins.getAll().forEach((plugin => {
             plugin.litelib && plugin.version && plugin.updateUrl && Updater.checkForUpdate(plugin.name);
         }));
     }
 }
 
-module.exports = index;
+window.LiteLib = Core, module.exports = LiteLib;

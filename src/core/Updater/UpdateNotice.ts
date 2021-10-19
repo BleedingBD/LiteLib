@@ -1,4 +1,5 @@
 import Notices, { CloseFn } from "@common/Notices";
+import Scheduler from "@common/Scheduler";
 import { createHTMLElement } from "@common/Utilities";
 import { applyUpdate } from "./UpdatePerformer";
 
@@ -38,7 +39,7 @@ export const update = (outdatedPlugins: string[]) => {
             createHTMLElement("strong", {
                 className: "ll-update-notice-plugin",
                 onclick: ()=> { 
-                    applyUpdate(plugin)
+                    Scheduler.schedule(() => applyUpdate(plugin));
                 }
             }, plugin)
         );

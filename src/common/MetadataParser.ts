@@ -1,8 +1,8 @@
 const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
 const escapedAtRegex = /^\\@/;
 
-export function parseMetadata(fileContent: string): Record<string,string>|undefined {
-    if(!fileContent.startsWith("/**")) return;
+export function parseMetadata(fileContent: string, strict = true): Record<string,string>|undefined {
+    if((strict && !fileContent.startsWith("/**")) || !fileContent.includes("/**")) return;
 
     // Taken directly from BD
     const block = fileContent.split("/**", 2)[1].split("*/", 1)[0];

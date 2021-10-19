@@ -1,10 +1,10 @@
 import { Memoize } from 'typescript-memoize';
-import DataStore from "./DataStore";
-import Dispatcher from "./Dispatcher";
-import Logger from "./Logger";
 import Modules from "./Modules";
 import Patcher from "./Patcher";
 import Styler from "./Styler";
+import Dispatcher from "./Dispatcher";
+import DataStore from './DataStore';
+import Logger from "./Logger";
 import Modals from "@common/Modals";
 import Notices from "@common/Notices";
 import Toasts from "@common/Toasts";
@@ -14,8 +14,8 @@ export interface API {
     Patcher: ReturnType<typeof Patcher>;
     Styler: Styler;
     Dispatcher: Dispatcher;
-    Data: any;
-    Settings: any;
+    Data: DataStore;
+    Settings: DataStore;
     Logger: ReturnType<typeof Logger>;
     // Completely static API parts
     Modals: Modals;
@@ -26,14 +26,15 @@ export interface API {
 }
 
 export default class Api{
+    private readonly pluginMetadata: Record<string, string>;
     private readonly pluginName: string;
 
     @Memoize() get Modules() { return new Modules(); }
     @Memoize() get Patcher() { return Patcher(this.pluginName); }
     @Memoize() get Styler() { return new Styler(this.pluginName); }
     @Memoize() get Dispatcher() { return new Dispatcher(); }
-    @Memoize() get Data() { return DataStore(this.pluginName,"data").store; }
-    @Memoize() get Settings(){ return DataStore(this.pluginName,"settings").store; }
+    @Memoize() get Data() { return new DataStore(this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") || this.pluginName, "data"); }
+    @Memoize() get Settings(){ return new DataStore(this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") || this.pluginName, "settings"); }
     @Memoize() get Logger() { return Logger(this.pluginName); }
     // Completely static API parts
     Modals = Modals;
@@ -42,7 +43,8 @@ export default class Api{
     React = BdApi.React;
     ReactDOM = BdApi.ReactDOM;
 
-    constructor(pluginName: string){
-        this.pluginName = pluginName;
+    constructor(pluginMetadata: Record<string, string>){
+        this.pluginMetadata = pluginMetadata;
+        this.pluginName = pluginMetadata.name;
     }
 }
