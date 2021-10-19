@@ -1,3 +1,4 @@
+import { Memoize } from "typescript-memoize";
 import Modules from "./Modules";
 import { createHTMLElement } from "./Utilities";
 
@@ -115,8 +116,7 @@ export declare type NoticeOptions = {
 };
 
 export default class Notices{
-    private static __baseClass: string;
-    private static get baseClass() {return this.__baseClass || (this.__baseClass = Modules.findByProps("container", "base")?.base);}
+    @Memoize() private static get baseClass() {return Modules.findByProps("container", "base")?.base}
 
     /** Shorthand for `type = "info"` for {@link module:Notices.show} */
     static info(content: Node|string, options: NoticeOptions = {}): CloseFn|undefined {return this.show(content, {...options, type: "info"});}
@@ -142,7 +142,7 @@ export default class Notices{
         const noticeElement = createHTMLElement(
             "div",
             {
-                className: "ll-notice" + type?` ll-notice-${type}`:""
+                className: "ll-notice" + (type?` ll-notice-${type}`:"")
             },
             [
                 createHTMLElement("div", {className: "ll-notice-close", onclick: () => closeNotification()}),

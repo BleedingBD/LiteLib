@@ -3,7 +3,15 @@ import Scheduler from "@common/Scheduler";
 import { createHTMLElement } from "@common/Utilities";
 import { applyUpdate } from "./UpdatePerformer";
 
-BdApi.injectCSS("ll-update-notice",``);
+BdApi.injectCSS("ll-update-notice",`
+.ll-update-notice-plugin {
+    cursor: pointer;
+    padding-left: .2em;
+}
+.ll-update-notice-plugin:hover {
+    text-decoration: underline;
+}
+`);
 
 const pluginsList: HTMLElement = createHTMLElement("span", {className: "ll-update-notice-list"});
 const noticeNode: HTMLElement = createHTMLElement("span", {className: "ll-update-notice"},
@@ -34,8 +42,7 @@ export const update = (outdatedPlugins: string[]) => {
     }
     pluginsList.innerHTML = "";
     outdatedPlugins.forEach(plugin => {
-        pluginsList.appendChild(document.createTextNode(" "));
-        pluginsList.appendChild(
+        pluginsList.append(
             createHTMLElement("strong", {
                 className: "ll-update-notice-plugin",
                 onclick: ()=> { 
@@ -43,5 +50,7 @@ export const update = (outdatedPlugins: string[]) => {
                 }
             }, plugin)
         );
+        pluginsList.append(", ");
     });
+    pluginsList.lastChild?.remove?.();
 };

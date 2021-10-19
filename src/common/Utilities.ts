@@ -40,3 +40,7 @@ export function findInReactTree(root: any, predicate: (node: any) => boolean): a
     }
     return null;
 }
+
+export function selectorFromClasses(...classes: string[]) {
+    return classes.map(c => `.${c.split(" ").join(".")}`).join("");
+}

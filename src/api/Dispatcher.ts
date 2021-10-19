@@ -12,7 +12,7 @@ interface DiscordDispatcher {
 }
 
 const discordDispatcher: DiscordDispatcher = Modules.findByProps("subscribe","unsubscribe") || Modules.findByProps("dispatch","dirtyDispatch");
-export default class Dispatcher{
+export default class Dispatcher implements DiscordDispatcher {
     readonly ActionTypes: Record<string, string> = Modules.findByProps("ActionTypes")?.ActionTypes;
 
     constructor(){
