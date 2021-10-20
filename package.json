@@ -1,8 +1,17 @@
 {
   "name": "litelib",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "displayName": "LiteLib",
+  "version": "0.4.0",
+  "description": "A lightweight library for creating BetterDiscord plugins.",
+  "author": {
+    "name": "Qb",
+    "email": "qb@qbit.moe"
+  },
+  "license": "Unlicense",
+  "pluginPath": "0LiteLib.plugin.js",
+  "configPath": "0LiteLib.config.json",
+  "updateUrl": "https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js",
+  "main": "dist/0LiteLib.plugin.js",
   "directories": {
     "example": "example"
   },
@@ -15,8 +24,6 @@
     "type": "git",
     "url": "git+https://github.com/BleedingBD/LiteLib.git"
   },
-  "author": "",
-  "license": "Unlicense",
   "bugs": {
     "url": "https://github.com/BleedingBD/LiteLib/issues"
   },

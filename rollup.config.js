@@ -5,7 +5,7 @@ import styles from "rollup-plugin-styles";
 import {terser} from "rollup-plugin-terser";
 import replace from "@rollup/plugin-replace";
 import license from "rollup-plugin-license";
-import {name} from "./package.json";
+import {displayName as name} from "./package.json";
 
 export default {
     input: "src/index.ts",
@@ -50,9 +50,9 @@ export default {
         }),
         license({
             banner: {
-                commentStyle: "none",
+                commentStyle: "regular",
                 content: {
-                    file: "src/meta.txt",
+                    file: "src/banner.txt",
                     encoding: "utf-8"
                 }
             }
