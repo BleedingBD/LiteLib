@@ -4,7 +4,7 @@ const FIELD_MATCHER = /^@(\w+)\s+(.*)/m
 
 export function parseMetadata(fileContent: string, strict = true): Record<string,string>|undefined {
     const match = fileContent.match(COMMENT);
-    if (!match || (match.index!=0 && strict)) return;
+    if (!match || (fileContent.indexOf(match[0])!=0 && strict)) return;
 
     const comment = match[0]
         // remove /**

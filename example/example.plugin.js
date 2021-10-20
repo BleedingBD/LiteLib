@@ -32,7 +32,7 @@ class {
                     fetch("https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js")
                         .then(r=>r.text())
                         .then(c=>fs.writeFile(require("path").join(BdApi.Plugins.folder, "0LiteLib.plugin.js"), c))
-                        .catch(_=>require("electron").shell.openExternal());
+                        .catch(()=>require("electron").shell.openExternal("https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js"));
                 }
             }
         );

@@ -1,9 +1,7 @@
-import { AddonEntry } from "../../../@types/betterdiscord__bdapi";
-
 interface PendingUpdate {
     name: string;
-    currentMetadata: AddonEntry,
-    remoteMetadata: Record<string, any>;
+    currentMetadata: Record<string, string>,
+    remoteMetadata: Record<string, string>;
 }
 
 const pendingUpdates = new Map<string, PendingUpdate>();
@@ -18,7 +16,7 @@ export default class PendingUpdateStore{
         return [...pendingUpdates.values()];
     }
 
-    static addPendingUpdate(name: string, currentMetadata: AddonEntry, remoteMetadata: Record<string, any>): void {
+    static addPendingUpdate(name: string, currentMetadata: Record<string, string>, remoteMetadata: Record<string, string>): void {
         if (pendingUpdates.has(name)) {
             if (pendingUpdates.get(name)?.remoteMetadata.version != remoteMetadata.version) {
                 pendingUpdates.set(name, {

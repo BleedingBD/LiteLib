@@ -9,24 +9,24 @@ PendingUpdateStore.subscribe((pendingUpdates)=>{
 });
 
 export default class Updater {
-    static async checkForUpdate(pluginName: string){
-        const currentMeta = BdApi.Plugins.get(pluginName);
-        const currentVersion = currentMeta?.version;
-        const updateUrl = currentMeta?.updateUrl;
-        if (!currentVersion || !updateUrl || !valid(currentVersion)) return;
-        Logger.debug("Updater",`Checking ${pluginName} (@${currentVersion}) for updates.`);
+    static async checkForUpdate(metadata: Record<string,string>){
+        const name = metadata.name;
+        const currentVersion = metadata.version;
+        const updateUrl = metadata.updateUrl;
+        if (!name || !currentVersion || !updateUrl || !valid(currentVersion)) return;
+        Logger.debug("Updater",`Checking ${name} (@${currentVersion}) for updates.`);
 
         try {
             const remoteMeta = await this.fetchMetadata(updateUrl);
             const remoteVersion = remoteMeta?.version;
             if(remoteVersion && valid(remoteVersion)){
                 if(gt(remoteVersion, currentVersion)){
-                    PendingUpdateStore.addPendingUpdate(pluginName, currentMeta, remoteMeta);
+                    PendingUpdateStore.addPendingUpdate(name, metadata, remoteMeta);
                     return true;
                 }
             }
         } catch (error) {
-            Logger.error("Updater",`Failed to check for updates for ${pluginName} (@${currentVersion}).`,error);
+            Logger.error("Updater",`Failed to check for updates for ${name} (@${currentVersion}).`,error);
         }
         return false;
     }

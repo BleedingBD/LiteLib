@@ -1,8 +1,6 @@
 Automatic Flux Store discovery
 Error handling
-setting to turn on automatic update detection for non-litelib plugins
 I18n
-documentation
-Fix automatic update detection on startup
+Better Patcher docs
 Add bdcompat support
 example plugins testing all existing features

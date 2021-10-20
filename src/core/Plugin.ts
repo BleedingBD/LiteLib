@@ -8,30 +8,94 @@ import { parseMetadata } from "@common/MetadataParser";
 import { useGeneric } from "@common/Utilities";
 
 export declare interface LiteLibPlugin extends BdPlugin {
-    API: API;
-    name: string;
+    /**
+     * The plugin's API instance. Automatically created on construction.
+     */
+    readonly API: API;
+    /**
+     * The plugin file's JSDoc metadata fields. Automatically assigned on construction.
+     */
+    readonly metadata: Record<string, string>;
+    /**
+     * The name of the plugin. Automatically assigned on construction.
+     */
+    readonly name: string;
 
+    /**
+     * Called once when the plugin is loaded.
+     * Do your plugin initialization here.
+     */
     initialize?(api: API): void;
+    /**
+     * Called once when the plugin is first loaded.
+     * The first load will only count when this method is present,
+     * so you may add this to do one time initialization even as an afterthought.
+     */
     firstLoad?(api: API): void;
 
+    /**
+     * Called when the plugin is started.
+     * Do stuff that should be done every time the plugin starts or restarts here.
+     * This can for example be used to subscribe to Dispatcher actions.
+     */
     setup?(api: API): void;
+    /**
+     * Called when the plugin is started, or the reloadPatches method is called.
+     * Do your module patches using the Patcher in here.
+     * Unless unpatch is unpatching should be taken care of automatically.
+     */
     patch?(api: API): void;
+    /**
+     * Called when the plugin is started, or the reloadStyles method is called.
+     * Add your style using the Styler in here.
+     * Unless unstyle is removing the styles should be taken care of automatically.
+     */
     style?(api: API): void;
 
+    /**
+     * Called when the plugin is stopped.
+     * Do stuff that should be done every time the plugin stops here.
+     * This can for example be used to unsubscribe from Dispatcher actions.
+     */
     cleanup?(api: API): void;
+    /**
+     * Called when the plugin is stopped, or the reloadPatches method is called.
+     * Remove your patches here. If not overridden this defaults unpatching all Patcher patches.
+     */
     unpatch?(api: API): void;
+    /**
+     * Called when the plugin is stopped, or the reloadStyles method is called.
+     * Remove your styles here. If not overridden this defaults removing all Styler styles.
+     */
     unstyle?(api: API): void;
 
+    /** Remove and reapply all patches. */
     reloadPatches(): void;
+    /** Remove and reapply all styles. */
     reloadStyles(): void;
 
+    /** A react hook that will automatically trigger a re-render when any plugin setting changes. */
     useSettings(): API;
+    /** A react hook that will automatically trigger a re-render when any plugin data changes. */
     useData(): API;
 
+    /**
+     * The css string returned by this method will automatically be added to the document as a stylesheet regardless of whether `style` has been overridden.
+     * Use this easily apply static stylesheets that are required by your plugin.
+     */
     css?(): string;
-    getUpdateUrl?(): string;
 
+    /**
+     * This method will be called if any plugin data changes.
+     * @param key The key that of the data field that changed.
+     * @param value The new value of the field or undefined if the field was deleted.
+     */
     onDataChanged?(key: string, value: any): void;
+    /**
+     * This method will be called if any plugin setting.
+     * @param key The key that of the setting that changed.
+     * @param value The new value of the setting or undefined if the setting was deleted.
+     */
     onSettingsChanged?(key: string, value: any): void;
 }
 
@@ -51,7 +115,7 @@ export abstract class PluginBase implements LiteLibPlugin {
     load(): void {
         if(typeof this.firstLoad == "function") setTimeout(()=>this.checkForFirstLaunch(),0);
         if(typeof this.getChangelogPanel == "function") setTimeout(()=>this.checkForChangelog(),0);
-        setTimeout(()=>this.checkForUpdate,0);
+        this.checkForUpdate();
         this.initialize?.(this.API);
     }
     initialize?(api: API): void;
@@ -65,15 +129,16 @@ export abstract class PluginBase implements LiteLibPlugin {
         }
     }
     async checkForChangelog(): Promise<void> {
-        const currentVersion = BdApi.Plugins.get(this.name)?.version;
+        const { Data, Modals } = this.API;
+        const currentVersion = this.metadata.version;
         if (!currentVersion) return;
-        if (this.API.Data.get("version", currentVersion) === currentVersion) return;
+        if (Data.get("version", currentVersion) === currentVersion) return;
 
-        this.API.Modals.showPluginChangelog(this.name);
-        this.API.Data.set("version", currentVersion);
+        Modals.showPluginChangelog(this.name);
+        Data.set("version", currentVersion);
     }
     async checkForUpdate(): Promise<void> {
-        await Updater.checkForUpdate(this.name);
+        await Updater.checkForUpdate(this.metadata);
     }
 
     start(): void {
@@ -106,7 +171,6 @@ export abstract class PluginBase implements LiteLibPlugin {
         if(typeof this.css == "function") this.API.Styler.add("css", this.css());
     }
 
-
     useSettings(): API {
         const { Settings } = this.API;
         useGeneric(
@@ -134,6 +198,11 @@ export abstract class PluginBase implements LiteLibPlugin {
     onSettingsChanged?(key: string, value: any): void;
 }
 
+/**
+ * This function will create a new plugin class for your plugin. It will automatically set the metadata for you.
+ * The returned class should be extended by your plugin class.
+ * @returns A plugin class that extends PluginBase. Extend this class to create a plugin.
+ */
 export default function(): typeof PluginBase & {new(): PluginBase} {
     const scriptTag = document.head.querySelector(`script[id$=-script-container]`);
     if (scriptTag && scriptTag.textContent) {

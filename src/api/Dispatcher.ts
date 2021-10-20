@@ -26,8 +26,14 @@ export default class Dispatcher implements DiscordDispatcher {
         }
     }
 
-    subscriptions = new Map<string,Set<Listener>>();
+    private readonly subscriptions = new Map<string,Set<Listener>>();
 
+    /**
+     * Subscribe to an action.
+     * @param action The action to subscribe to
+     * @param listener The callback to call when the action is dispatched
+     * @returns A function to unsubscribe from the action
+     */
     subscribe(action: string, listener: Listener): UnsubscribeFn {
         if(!this.subscriptions.has(action)){
             this.subscriptions.set(action, new Set<Listener>());
@@ -42,6 +48,11 @@ export default class Dispatcher implements DiscordDispatcher {
         return () => this.unsubscribe(action, listener);
     }
 
+    /**
+     * Unsubscribe from an action.
+     * @param action The action to unsubscribe from.
+     * @param listener The callback to unsubscribe, if not provided all listeners will be unsubscribed.
+     */
     unsubscribe(action: string, listener?: Listener): void {
         if(!this.subscriptions.has(action)){ return; }
 
@@ -59,6 +70,9 @@ export default class Dispatcher implements DiscordDispatcher {
         }
     }
 
+    /**
+     * Unsubscribe all listeners from all actions that were subscribed to using this dispatcher.
+     */
     unsubscribeAll(){
         for(const action of this.subscriptions.keys()){
             this.unsubscribe(action as string);
@@ -66,7 +80,15 @@ export default class Dispatcher implements DiscordDispatcher {
         this.subscriptions.clear();
     }
 
+    /**
+     * Dispatch an action.
+     * @param payload The payload to dispatch
+     */
     dispatch(payload: any){ return discordDispatcher.dispatch(payload); }
+    /**
+     * Dispatch an action dirtily.
+     * @param payload The payload to dispatch
+     */
     dirtyDispatch(payload: any){ return discordDispatcher.dirtyDispatch(payload); }
 
 }

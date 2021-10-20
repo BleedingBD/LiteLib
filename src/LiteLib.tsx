@@ -34,17 +34,17 @@ export default class extends Plugin() {
     }
 
     async checkAllForUpdates({ Settings }: API) {
-        if (Settings.get("periodicUpdateChecking", true)) return;
+        if (!Settings.get("periodicUpdateChecking", true)) return;
+        const nonLitelibUpdateChecking = Settings.get("nonLitelibUpdateChecking", false);
 
         BdApi.Plugins.getAll().forEach(plugin => {
-            if (plugin.litelib && plugin.version && plugin.updateUrl) {
-                Updater.checkForUpdate(plugin.name);
+            if (nonLitelibUpdateChecking || plugin.litelib) {
+                Updater.checkForUpdate(plugin as Record<string, string>);
             }
         });
     }
 
     getSettingsPanel() {
-
         return ()=>{
             const { Modules, Settings } = this.useSettings();
             const SwitchItem = Modules.findByDisplayName("SwitchItem");
@@ -56,6 +56,14 @@ export default class extends Plugin() {
                     onChange={(value: boolean) => Settings.set("periodicUpdateChecking", value)}
                 >
                     Periodic Update Checks
+                </SwitchItem>
+                <SwitchItem
+                    note="Enables update checking for non-LiteLib plugins during periodic checks."
+                    value={Settings.get("nonLitelibUpdateChecking", false)}
+                    disabled={!Settings.get("periodicUpdateChecking", true)}
+                    onChange={(value: boolean) => Settings.set("nonLitelibUpdateChecking", value)}
+                >
+                    Non-LiteLib Update Checks
                 </SwitchItem>
             </>;
         };

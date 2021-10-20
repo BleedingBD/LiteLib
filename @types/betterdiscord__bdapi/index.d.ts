@@ -7,16 +7,13 @@
 
 import * as ReactInstance from 'react';
 import * as ReactDOMInstance from 'react-dom';
-import * as _ from 'lodash';
 
 export {};
 
 declare global {
     const BdApi: typeof BdApiModule;
-    const _: typeof _;
     interface Window {
         BdApi: typeof BdApiModule;
-        _: typeof _;
     }
     const global: Window;
 }
@@ -285,16 +282,6 @@ declare namespace BdApiModule {
     const emotes: any;
 
     /**
-     * Yields the total active width of the application.
-     */
-    const screenWidth: number;
-
-    /**
-     * Yields the total active height of the application.
-     */
-    const screenHeight: number;
-
-    /**
      * Creates an shows an alert modal to the user. A preview of how it may look can be found [here](https://i.zackrauen.com/7qnnNC.png).
      * @param title The title to show on the modal.
      * @param content Content to show in the modal (can be html string).
@@ -360,14 +347,6 @@ declare namespace BdApiModule {
      * @returns The modules found or null if none were found.
      */
     function findModuleByDisplayName(name: string): any;
-
-    /**
-     * Returns BandagedBD's instance of the core module. Only use this if you know what you are doing.
-     * @deprecated since 2020.3.27
-     * @returns BBD's instantiated core module.
-     */
-    function getCore(): any; // TODO: This should not return 'any' but instead 'Core'
-    // Not worth it in my opinion because it's deprecated (commit caf3406e0a22a24dc5ad76d9c51edb3330d379b7)
 
     /**
      * Alias for loadData(pluginName, key)

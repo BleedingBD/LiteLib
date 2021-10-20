@@ -224,13 +224,13 @@ class Notices {
     }
 }
 
-__decorate([ Memoize() ], Notices, "baseClass", null), Promise.resolve();
+__decorate([ Memoize() ], Notices, "baseClass", null);
 
 const COMMENT = /\/\*\*\s*\n([^*]|(\*(?!\/)))*\*\//g, STAR_MATCHER = /^ \* /, FIELD_MATCHER = /^@(\w+)\s+(.*)/m;
 
 function parseMetadata(fileContent, strict = !0) {
     const match = fileContent.match(COMMENT);
-    if (!match || 0 != match.index && strict) return;
+    if (!match || 0 != fileContent.indexOf(match[0]) && strict) return;
     const comment = match[0].replace(/^\/\*\*?/, "").replace(/\*\/$/, "").split(/\n\r?/).map((l => l.replace(STAR_MATCHER, ""))), ret = {
         "": ""
     };
@@ -273,6 +273,25 @@ class PendingUpdateStore {
     }
 }
 
+async function applyUpdate(pluginName) {
+    try {
+        const pendingUpdate = PendingUpdateStore.getPendingUpdate(pluginName);
+        if (!pendingUpdate) return !1;
+        const {currentMetadata} = pendingUpdate, response = await fetch(currentMetadata.updateUrl), fileContent = await response.text(), incomingMetadata = parseMetadata(fileContent);
+        if (!incomingMetadata || !incomingMetadata.name) return !1;
+        const targetConfigPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.configPath || `${incomingMetadata.name}.config.json`), currentConfigPath = path.resolve(BdApi.Plugins.folder, currentMetadata.configPath || `${currentMetadata.name}.config.json`);
+        targetConfigPath != currentConfigPath && await fs.promises.rename(currentConfigPath, targetConfigPath);
+        const targetPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.pluginPath || `${incomingMetadata.name}.plugin.js`);
+        await fs.promises.writeFile(targetPath, fileContent, "utf-8");
+        const currentPath = path.resolve(BdApi.Plugins.folder, currentMetadata.filename);
+        return targetPath != currentPath && await fs.promises.unlink(currentPath), PendingUpdateStore.removePendingUpdate(pluginName), 
+        !0;
+    } catch (e) {
+        return Logger$1.error("Updater", `Error while trying to update ${pluginName}`, e), 
+        !1;
+    }
+}
+
 BdApi.injectCSS("ll-update-notice", "\n.ll-update-notice-plugin {\n	cursor: pointer;\n	padding-left: .2em;\n}\n.ll-update-notice-plugin:hover {\n	text-decoration: underline;\n}\n");
 
 const pluginsList = createHTMLElement("span", {
@@ -297,49 +316,35 @@ PendingUpdateStore.subscribe((pendingUpdates => {
             buttons: [ {
                 label: "Update All",
                 onClick: () => {
-                    outdatedPlugins.forEach((plugin => async function applyUpdate(pluginName) {
-                        try {
-                            const pendingUpdate = PendingUpdateStore.getPendingUpdate(pluginName);
-                            if (!pendingUpdate) return !1;
-                            const {currentMetadata} = pendingUpdate, response = await fetch(currentMetadata.updateUrl), fileContent = await response.text(), incomingMetadata = parseMetadata(fileContent);
-                            if (!incomingMetadata || !incomingMetadata.name) return !1;
-                            const targetConfigPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.configPath || `${incomingMetadata.name}.config.json`), currentConfigPath = path.resolve(BdApi.Plugins.folder, currentMetadata.configPath || `${currentMetadata.name}.config.json`);
-                            targetConfigPath != currentConfigPath && await fs.promises.rename(currentConfigPath, targetConfigPath);
-                            const targetPath = path.resolve(BdApi.Plugins.folder, incomingMetadata.pluginPath || `${incomingMetadata.name}.plugin.js`);
-                            await fs.promises.writeFile(targetPath, fileContent, "utf-8");
-                            const currentPath = path.resolve(BdApi.Plugins.folder, currentMetadata.filename);
-                            return targetPath != currentPath && await fs.promises.unlink(currentPath), PendingUpdateStore.removePendingUpdate(pluginName), 
-                            !0;
-                        } catch (e) {
-                            return Logger$1.error("Updater", `Error while trying to update ${pluginName}`, e), 
-                            !1;
-                        }
-                    }(plugin))), currentCloseFunction(), currentCloseFunction = void 0;
+                    outdatedPlugins.forEach((plugin => applyUpdate(plugin))), currentCloseFunction(), 
+                    currentCloseFunction = void 0;
                 }
             } ]
         })), pluginsList.innerHTML = "", outdatedPlugins.forEach((plugin => {
             pluginsList.append(createHTMLElement("strong", {
                 className: "ll-update-notice-plugin",
-                onclick: () => {}
+                onclick: () => {
+                    applyUpdate(plugin);
+                }
             }, plugin)), pluginsList.append(", ");
         })), pluginsList.lastChild?.remove?.()) : isShown && currentCloseFunction();
     })(pendingUpdates.map((pendingUpdate => pendingUpdate.name)));
 }));
 
 class Updater {
-    static async checkForUpdate(pluginName) {
-        const currentMeta = BdApi.Plugins.get(pluginName), currentVersion = currentMeta?.version, updateUrl = currentMeta?.updateUrl;
-        if (currentVersion && updateUrl && valid(currentVersion)) {
-            Logger$1.debug("Updater", `Checking ${pluginName} (@${currentVersion}) for updates.`);
+    static async checkForUpdate(metadata) {
+        const name = metadata.name, currentVersion = metadata.version, updateUrl = metadata.updateUrl;
+        if (name && currentVersion && updateUrl && valid(currentVersion)) {
+            Logger$1.debug("Updater", `Checking ${name} (@${currentVersion}) for updates.`);
             try {
                 const remoteMeta = await this.fetchMetadata(updateUrl), remoteVersion = remoteMeta?.version;
                 if (remoteVersion && valid(remoteVersion) && function semiver(a, b, bool) {
                     return a = a.split("."), b = b.split("."), fn(a[0], b[0]) || fn(a[1], b[1]) || (b[2] = b.slice(2).join("."), 
                     (bool = /[.-]/.test(a[2] = a.slice(2).join("."))) == /[.-]/.test(b[2]) ? fn(a[2], b[2]) : bool ? -1 : 1);
-                }(remoteVersion, currentVersion) > 0) return PendingUpdateStore.addPendingUpdate(pluginName, currentMeta, remoteMeta), 
+                }(remoteVersion, currentVersion) > 0) return PendingUpdateStore.addPendingUpdate(name, metadata, remoteMeta), 
                 !0;
             } catch (error) {
-                Logger$1.error("Updater", `Failed to check for updates for ${pluginName} (@${currentVersion}).`, error);
+                Logger$1.error("Updater", `Failed to check for updates for ${name} (@${currentVersion}).`, error);
             }
             return !1;
         }
@@ -461,11 +466,14 @@ class DataStore extends class EventEmitter {
         return key in this.data;
     }
     get(key, defaultValue) {
-        return this.data[key] ?? defaultValue;
+        return key in this.data ? this.data[key] : defaultValue;
     }
     set(key, value) {
         if (void 0 === value) return this.delete(key);
         this.data[key] = value, this.emit("change", key, value), this.syncData();
+    }
+    modify(key, modifier, defaultValue) {
+        this.set(key, modifier(this.get(key, defaultValue)));
     }
     delete(key) {
         delete this.data[key], this.emit("change", key, void 0), this.syncData();
@@ -473,7 +481,9 @@ class DataStore extends class EventEmitter {
     on(event, listener) {
         return super.on(event, listener);
     }
-    syncData() {}
+    syncData() {
+        window.setTimeout((() => BdApi.saveData(this.configPath, this.key, this.data)), 0);
+    }
 }
 
 const React = BdApi.React, ModalActions = Modules$1.findByProps("openModal", "updateModal"), FormTitle = Modules$1.findByDisplayName("FormTitle"), Button = Modules$1.findByProps("ButtonColors").default, {ModalRoot, ModalHeader, ModalContent, ModalFooter, ModalSize} = Modules$1.findByProps("ModalRoot"), Messages = Modules$1.findByProps("Messages", "setLocale")?.Messages;
@@ -645,19 +655,19 @@ class PluginBase {
     load() {
         "function" == typeof this.firstLoad && setTimeout((() => this.checkForFirstLaunch()), 0), 
         "function" == typeof this.getChangelogPanel && setTimeout((() => this.checkForChangelog()), 0), 
-        setTimeout((() => this.checkForUpdate), 0), this.initialize?.(this.API);
+        this.checkForUpdate(), this.initialize?.(this.API);
     }
     async checkForFirstLaunch() {
         const Data = this.API.Data;
         Data.get("firstLoad") || (this.firstLoad(this.API), Data.set("firstLoad", !0));
     }
     async checkForChangelog() {
-        const currentVersion = BdApi.Plugins.get(this.name)?.version;
-        currentVersion && this.API.Data.get("version", currentVersion) !== currentVersion && (this.API.Modals.showPluginChangelog(this.name), 
-        this.API.Data.set("version", currentVersion));
+        const {Data, Modals} = this.API, currentVersion = this.metadata.version;
+        currentVersion && Data.get("version", currentVersion) !== currentVersion && (Modals.showPluginChangelog(this.name), 
+        Data.set("version", currentVersion));
     }
     async checkForUpdate() {
-        await Updater.checkForUpdate(this.name);
+        await Updater.checkForUpdate(this.metadata);
     }
     start() {
         const API = this.API;
@@ -741,8 +751,10 @@ class LiteLib extends(Plugin()){
         }));
     }
     async checkAllForUpdates({Settings}) {
-        Settings.get("periodicUpdateChecking", !0) || BdApi.Plugins.getAll().forEach((plugin => {
-            plugin.litelib && plugin.version && plugin.updateUrl && Updater.checkForUpdate(plugin.name);
+        if (!Settings.get("periodicUpdateChecking", !0)) return;
+        const nonLitelibUpdateChecking = Settings.get("nonLitelibUpdateChecking", !1);
+        BdApi.Plugins.getAll().forEach((plugin => {
+            (nonLitelibUpdateChecking || plugin.litelib) && Updater.checkForUpdate(plugin);
         }));
     }
     getSettingsPanel() {
@@ -752,7 +764,12 @@ class LiteLib extends(Plugin()){
                 note: "Enable periodically checking for updates.",
                 value: Settings.get("periodicUpdateChecking", !0),
                 onChange: value => Settings.set("periodicUpdateChecking", value)
-            }, "Periodic Update Checks"));
+            }, "Periodic Update Checks"), BdApi.React.createElement(SwitchItem, {
+                note: "Enables update checking for non-LiteLib plugins during periodic checks.",
+                value: Settings.get("nonLitelibUpdateChecking", !1),
+                disabled: !Settings.get("periodicUpdateChecking", !0),
+                onChange: value => Settings.set("nonLitelibUpdateChecking", value)
+            }, "Non-LiteLib Update Checks"));
         };
     }
 }
