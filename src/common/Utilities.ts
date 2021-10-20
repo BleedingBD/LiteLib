@@ -44,3 +44,12 @@ export function findInReactTree(root: any, predicate: (node: any) => boolean): a
 export function selectorFromClasses(...classes: string[]) {
     return classes.map(c => `.${c.split(" ").join(".")}`).join("");
 }
+
+export function useGeneric(on: (forceUpdate:()=>void)=>void, off: (forceUpdate:()=>void)=>void, ...dependencies: any[]): ()=>void {
+    const [, forceUpdate] = BdApi.React.useReducer((i)=>i+1, 0)
+    BdApi.React.useEffect(()=>{
+        on(forceUpdate);
+        return ()=>{off(forceUpdate)};
+    }, dependencies);
+    return forceUpdate;
+}

@@ -5,6 +5,7 @@ import API from "../api";
 import React from "react";
 import { BdPlugin } from "../../@types/betterdiscord__bdapi";
 import { parseMetadata } from "@common/MetadataParser";
+import { useGeneric } from "@common/Utilities";
 
 export declare interface LiteLibPlugin extends BdPlugin {
     API: API;
@@ -23,6 +24,9 @@ export declare interface LiteLibPlugin extends BdPlugin {
 
     reloadPatches(): void;
     reloadStyles(): void;
+
+    useSettings(): API;
+    useData(): API;
 
     css?(): string;
     getUpdateUrl?(): string;
@@ -100,6 +104,26 @@ export abstract class PluginBase implements LiteLibPlugin {
         this.unstyle?.(this.API);
         this.style?.(this.API);
         if(typeof this.css == "function") this.API.Styler.add("css", this.css());
+    }
+
+
+    useSettings(): API {
+        const { Settings } = this.API;
+        useGeneric(
+            (forceUpdate)=>Settings.on("change",forceUpdate),
+            (forceUpdate)=>{Settings.off("change", forceUpdate)},
+            Settings
+        );
+        return this.API;
+    }
+    useData(): API {
+        const { Data } = this.API;
+        useGeneric(
+            (forceUpdate)=>Data.on("change",forceUpdate),
+            (forceUpdate)=>{Data.off("change", forceUpdate)},
+            Data
+        );
+        return this.API;
     }
 
     getChangelogPanel?(): Node|React.FC|React.Component|string;

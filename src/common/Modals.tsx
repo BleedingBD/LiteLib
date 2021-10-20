@@ -32,9 +32,16 @@ class ReactWrapper extends React.Component<{element: Node|string}> {
     }
 }
 
-export default class Modals{
+type CloseFn = () => void;
+interface ButtonDefintion {
+    label: string;
+    onClick: (close: CloseFn)=>void;
+}
 
-    static show(title: string, panel: Node|React.FC|React.Component|ReactNode){
+export default class Modals{
+    static showConfirmationDialog = BdApi.showConfirmationModal;
+
+    static show(title: string, panel: Node|React.FC|React.Component|ReactNode, buttons?: ButtonDefintion[]){
         let child: ReactNode;
         if (typeof(panel) === "function") {
             child = React.createElement(panel as React.FC);
@@ -47,17 +54,21 @@ export default class Modals{
             Logger.error("Modals.showModal", "Invalid panel type", panel);
             return;
         }
-        
+
         const modal = (props: any) => {
+            const renderedButtons = buttons ?
+                buttons.map((b)=><Button className="bd-button" onClick={()=>b.onClick(props.onClose)}>
+                    {b.label}
+                </Button>):
+                [<Button className="bd-button" onClick={props.onClose}>{Messages?.DONE||"Done"}</Button>];
+
             return React.createElement(ModalRoot, Object.assign({size: ModalSize.MEDIUM, className: "ll-modal"}, props),
                 <ModalHeader separator="false" className="ll-modal-header">
                     <FormTitle tag="h4">{title}</FormTitle>
                 </ModalHeader>,
                 <ModalContent className="ll-modal-content">{child}</ModalContent>,
                 <ModalFooter className="ll-modal-footer">
-                    <Button className="bd-button" onClick={props.onClose}>
-                        {Messages?.DONE||"Done"}
-                    </Button>
+                    {...renderedButtons}
                 </ModalFooter>
             );
         };

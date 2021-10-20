@@ -17,11 +17,6 @@ export default class Modules {
         return BdApi.findModuleByDisplayName(displayName);
     }
 
-    static find(predicate: Predicate): any {
-        return BdApi.findModule(predicate);
-    }
-
-    static findAll(predicate: Predicate): any[]|undefined {
-        return BdApi.findAllModules(predicate);
-    }
+    static find = BdApi.findModule;
+    static findAll = BdApi.findAllModules;
 }

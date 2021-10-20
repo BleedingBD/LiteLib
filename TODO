@@ -1,7 +1,8 @@
 Automatic Flux Store discovery
 Error handling
-settings to turn off automatic update detection
 setting to turn on automatic update detection for non-litelib plugins
 I18n
-Buttons for modals
 documentation
+Fix automatic update detection on startup
+Add bdcompat support
+example plugins testing all existing features

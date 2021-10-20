@@ -6,7 +6,7 @@ export default class EventEmitter {
         this.listeners.get(event)?.push?.(listener);
         return this;
     }
-    
+
     off(event: string, listener: (...args: any[]) => void): this {
         if (this.listeners.has(event)) {
             const listeners = this.listeners.get(event);

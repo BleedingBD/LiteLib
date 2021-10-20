@@ -1,28 +1,34 @@
-const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
-const escapedAtRegex = /^\\@/;
+const COMMENT = /\/\*\*\s*\n([^*]|(\*(?!\/)))*\*\//g;
+const STAR_MATCHER = /^ \* /;
+const FIELD_MATCHER = /^@(\w+)\s+(.*)/m
 
 export function parseMetadata(fileContent: string, strict = true): Record<string,string>|undefined {
-    if((strict && !fileContent.startsWith("/**")) || !fileContent.includes("/**")) return;
+    const match = fileContent.match(COMMENT);
+    if (!match || (match.index!=0 && strict)) return;
 
-    // Taken directly from BD
-    const block = fileContent.split("/**", 2)[1].split("*/", 1)[0];
-    const out: Record<string,string> = {};
-    let field = "";
-    let accum = "";
-    for (const line of block.split(splitRegex)) {
-        if (line.length === 0) continue;
-        if (line.charAt(0) === "@" && line.charAt(1) !== " ") {
-            out[field] = accum;
-            const l = line.indexOf(" ");
-            field = line.substr(1, l - 1);
-            accum = line.substr(l + 1);
-        }
-        else {
-            accum += " " + line.replace("\\n", "\n").replace(escapedAtRegex, "@");
+    const comment = match[0]
+        // remove /**
+        .replace(/^\/\*\*?/, '')
+        // remove */
+        .replace(/\*\/$/, '')
+        // split lines
+        .split(/\n\r?/)
+        // remove ' * ' at the beginning of a line
+        .map(l=>l.replace(STAR_MATCHER, ''));
+
+    const ret: Record<string,string> = {"":""};
+    let currentKey = "";
+    for (const line of comment) {
+        const field = line.match(FIELD_MATCHER);
+        if (field) {
+            currentKey = field[1];
+            ret[currentKey] = field[2];
+        } else {
+            ret[currentKey] += "\n" + line
         }
     }
-    out[field] = accum.trim();
-    delete out[""];
-    out["format"] = "jsdoc";
-    return out;
+    ret[currentKey] = ret[currentKey].trimEnd();
+    delete ret[""];
+
+    return ret;
 }

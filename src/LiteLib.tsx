@@ -9,14 +9,7 @@ export default class extends Plugin() {
     updateAllInterval?: NodeJS.Timer;
 
     initialize(API: API) {
-        this.updateAllInterval = setInterval(()=>this.checkAllForUpdates(API), API.Settings.get("updateInterval", 30*60*1000));
-    }
-
-    defaultSettings() {
-        return {
-            updateInterval: { value: 30*60*1000 },
-            releaseBranch: { value: "stable" },
-        };
+        this.updateAllInterval = setInterval(()=>this.checkAllForUpdates(API), 15*60*1000);
     }
 
     /*
@@ -34,18 +27,37 @@ export default class extends Plugin() {
         BdApi.Plugins.getAll().forEach(plugin => {
             if (plugin.litelib && plugin.instance!=this) {
                 Logger.info(`Reloading ${plugin.name}.`)
-                promises.utimes(resolve(BdApi.Plugins.folder, plugin.filename), time, time).catch(()=>{});
+                promises.utimes(resolve(BdApi.Plugins.folder, plugin.filename), time, time)
+                    .catch((e)=>{Logger.error(`Error while reloading ${plugin.name}.`, e)});
             }
         });
     }
 
     async checkAllForUpdates({ Settings }: API) {
-        if (Settings.get("updateInterval", 30*60*1000)<=0) return;
+        if (Settings.get("periodicUpdateChecking", true)) return;
 
         BdApi.Plugins.getAll().forEach(plugin => {
             if (plugin.litelib && plugin.version && plugin.updateUrl) {
                 Updater.checkForUpdate(plugin.name);
             }
         });
+    }
+
+    getSettingsPanel() {
+
+        return ()=>{
+            const { Modules, Settings } = this.useSettings();
+            const SwitchItem = Modules.findByDisplayName("SwitchItem");
+
+            return <>
+                <SwitchItem
+                    note="Enable periodically checking for updates."
+                    value={Settings.get("periodicUpdateChecking", true)}
+                    onChange={(value: boolean) => Settings.set("periodicUpdateChecking", value)}
+                >
+                    Periodic Update Checks
+                </SwitchItem>
+            </>;
+        };
     }
 }

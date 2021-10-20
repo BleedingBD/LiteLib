@@ -1,10 +1,10 @@
 /**
  * @name LiteLib
- * @version 0.1.0
+ * @version 0.3.0
  * @description A lightweight library for creating BetterDiscord plugins.
  * @author Qb
  * @license Unlicense
- * @litelib ^0.1.0
+ * @litelib ^0.3.0
  * @pluginPath 0LiteLib.plugin.js
  * @configPath 0LiteLib.config.json
  * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js
@@ -84,12 +84,8 @@ class Modules$1 {
     static findByDisplayName(displayName) {
         return BdApi.findModuleByDisplayName(displayName);
     }
-    static find(predicate) {
-        return BdApi.findModule(predicate);
-    }
-    static findAll(predicate) {
-        return BdApi.findAllModules(predicate);
-    }
+    static find=BdApi.findModule;
+    static findAll=BdApi.findAllModules;
 }
 
 __decorate([ Memoize(((...props) => props.join(","))) ], Modules$1, "findByProps", null), 
@@ -132,6 +128,13 @@ function createHTMLElement(tag, attrs, ...children) {
 
 const walkable = [ "props", "state", "children", "sibling", "child" ];
 
+function useGeneric(on, off, ...dependencies) {
+    const [, forceUpdate] = BdApi.React.useReducer((i => i + 1), 0);
+    return BdApi.React.useEffect((() => (on(forceUpdate), () => {
+        off(forceUpdate);
+    })), dependencies), forceUpdate;
+}
+
 var Utilities = Object.freeze({
     __proto__: null,
     createHTMLElement,
@@ -151,15 +154,18 @@ var Utilities = Object.freeze({
             if (found) return found;
         }
         return null;
-    }
+    },
+    selectorFromClasses: function selectorFromClasses(...classes) {
+        return classes.map((c => `.${c.split(" ").join(".")}`)).join("");
+    },
+    useGeneric
 });
 
 BdApi.injectCSS("ll-notices-style", "\n.ll-notice-success {\n    --color: #3ba55d;\n}\n\n.ll-notice-error {\n    --color: #ED4245;\n}\n\n.ll-notice-info {\n    --color: #4A8FE1;\n}\n\n.ll-notice-warning {\n    --color: #FAA81A;\n}\n\n.ll-notice-closing {\n	transition: height 400ms ease;\n	height: 0 !important;\n}\n\n@keyframes ll-open-notice {\n	from {\n        height: 0;\n    }\n}\n\n.ll-notice {\n	animation: ll-open-notice 400ms ease;\n	overflow: hidden;\n	height: 36px;\n	font-size: 14px;\n	line-height: 36px;\n	font-weight: 500;\n	text-align: center;\n	position: relative;\n	padding-left: 4px;\n	padding-right: 28px;\n	z-index: 101;\n	flex: 0 0;\n	box-shadow: var(--elevation-low);\n	color: #fff;\n	background: var(--color, var(--brand-experiment-600, #3C45A5));\n}\n\n.ll-notice:first-child {\n	border-radius: 8px 0 0;\n}\n\n.ll-notice-close {\n	position: absolute;\n	top: 0;\n	right: 0;\n	width: 36px;\n	height: 36px;\n	background: url(https://discord.com/assets/7731c77d99babca1a8faec204d98c380.svg) no-repeat;\n	background-position: 50% 55%;\n	background-size: 10px 10px;\n	opacity: .5;\n	transition: opacity .2s;\n	cursor: pointer;\n    -webkit-app-region: no-drag;\n}\n\n.ll-notice-button {\n	font-size: 14px;\n	font-weight: 500;\n	position: relative;\n	top: 6px;\n	border: 1px solid;\n	color: #fff;\n	border-radius: 3px;\n	height: 24px;\n	padding: 0 10px;\n	box-sizing: border-box;\n	display: inline-block;\n	vertical-align: top;\n	margin-left: 10px;\n	line-height: 22px;\n	transition: background-color .2s ease,color .2s ease,border-color .2s ease;\n    -webkit-app-region: no-drag;\n	border-color: #fff;\n	background: transparent;\n}\n\n.ll-notice-button:hover {\n	color: var(--color, var(--background-mobile-primary));\n	background: #fff;\n}\n\n.ll-notice-close:hover {\n	opacity: 1;\n}\n");
 
 class Notices {
-    static __baseClass;
     static get baseClass() {
-        return this.__baseClass || (this.__baseClass = Modules$1.findByProps("container", "base")?.base);
+        return Modules$1.findByProps("container", "base")?.base;
     }
     static info(content, options = {}) {
         return this.show(content, {
@@ -218,20 +224,22 @@ class Notices {
     }
 }
 
-Promise.resolve();
+__decorate([ Memoize() ], Notices, "baseClass", null), Promise.resolve();
 
-const splitRegex = /[^\S\r\n]*?\r?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/, escapedAtRegex = /^\\@/;
+const COMMENT = /\/\*\*\s*\n([^*]|(\*(?!\/)))*\*\//g, STAR_MATCHER = /^ \* /, FIELD_MATCHER = /^@(\w+)\s+(.*)/m;
 
 function parseMetadata(fileContent, strict = !0) {
-    if (strict && !fileContent.startsWith("/**") || !fileContent.includes("/**")) return;
-    const block = fileContent.split("/**", 2)[1].split("*/", 1)[0], out = {};
-    let field = "", accum = "";
-    for (const line of block.split(splitRegex)) if (0 !== line.length) if ("@" === line.charAt(0) && " " !== line.charAt(1)) {
-        out[field] = accum;
-        const l = line.indexOf(" ");
-        field = line.substr(1, l - 1), accum = line.substr(l + 1);
-    } else accum += " " + line.replace("\\n", "\n").replace(escapedAtRegex, "@");
-    return out[field] = accum.trim(), delete out[""], out.format = "jsdoc", out;
+    const match = fileContent.match(COMMENT);
+    if (!match || 0 != match.index && strict) return;
+    const comment = match[0].replace(/^\/\*\*?/, "").replace(/\*\/$/, "").split(/\n\r?/).map((l => l.replace(STAR_MATCHER, ""))), ret = {
+        "": ""
+    };
+    let currentKey = "";
+    for (const line of comment) {
+        const field = line.match(FIELD_MATCHER);
+        field ? (currentKey = field[1], ret[currentKey] = field[2]) : ret[currentKey] += "\n" + line;
+    }
+    return ret[currentKey] = ret[currentKey].trimEnd(), delete ret[""], ret;
 }
 
 const pendingUpdates = new Map, listeners = new Set;
@@ -491,27 +499,34 @@ class ReactWrapper extends React.Component {
 }
 
 class Modals {
-    static show(title, panel) {
+    static showConfirmationDialog=BdApi.showConfirmationModal;
+    static show(title, panel, buttons) {
         let child;
         if ("function" == typeof panel ? child = React.createElement(panel) : panel instanceof Node || "string" == typeof panel ? child = BdApi.React.createElement(ReactWrapper, {
             element: panel
         }) : React.isValidElement(panel) && (child = panel), !child) return void Logger$1.error("Modals.showModal", "Invalid panel type", panel);
-        const modal = props => React.createElement(ModalRoot, Object.assign({
-            size: ModalSize.MEDIUM,
-            className: "ll-modal"
-        }, props), BdApi.React.createElement(ModalHeader, {
-            separator: "false",
-            className: "ll-modal-header"
-        }, BdApi.React.createElement(FormTitle, {
-            tag: "h4"
-        }, title)), BdApi.React.createElement(ModalContent, {
-            className: "ll-modal-content"
-        }, child), BdApi.React.createElement(ModalFooter, {
-            className: "ll-modal-footer"
-        }, BdApi.React.createElement(Button, {
-            className: "bd-button",
-            onClick: props.onClose
-        }, Messages?.DONE || "Done")));
+        const modal = props => {
+            const renderedButtons = buttons ? buttons.map((b => BdApi.React.createElement(Button, {
+                className: "bd-button",
+                onClick: () => b.onClick(props.onClose)
+            }, b.label))) : [ BdApi.React.createElement(Button, {
+                className: "bd-button",
+                onClick: props.onClose
+            }, Messages?.DONE || "Done") ];
+            return React.createElement(ModalRoot, Object.assign({
+                size: ModalSize.MEDIUM,
+                className: "ll-modal"
+            }, props), BdApi.React.createElement(ModalHeader, {
+                separator: "false",
+                className: "ll-modal-header"
+            }, BdApi.React.createElement(FormTitle, {
+                tag: "h4"
+            }, title)), BdApi.React.createElement(ModalContent, {
+                className: "ll-modal-content"
+            }, child), BdApi.React.createElement(ModalFooter, {
+                className: "ll-modal-footer"
+            }, renderedButtons));
+        };
         return ModalActions.openModal((props => React.createElement(modal, props)));
     }
     static showPluginSettings(pluginName) {
@@ -535,9 +550,7 @@ class Modals {
 }
 
 class Toasts {
-    static show(content, options) {
-        BdApi.showToast(content, options);
-    }
+    static show=BdApi.showToast;
     static success(content, options) {
         BdApi.showToast(content, {
             ...options,
@@ -665,6 +678,18 @@ class PluginBase {
     reloadStyles() {
         this.unstyle?.(this.API), this.style?.(this.API), "function" == typeof this.css && this.API.Styler.add("css", this.css());
     }
+    useSettings() {
+        const {Settings} = this.API;
+        return useGeneric((forceUpdate => Settings.on("change", forceUpdate)), (forceUpdate => {
+            Settings.off("change", forceUpdate);
+        }), Settings), this.API;
+    }
+    useData() {
+        const {Data} = this.API;
+        return useGeneric((forceUpdate => Data.on("change", forceUpdate)), (forceUpdate => {
+            Data.off("change", forceUpdate);
+        }), Data), this.API;
+    }
 }
 
 function Plugin() {
@@ -703,30 +728,32 @@ var Core = Object.freeze({
 class LiteLib extends(Plugin()){
     updateAllInterval;
     initialize(API) {
-        this.updateAllInterval = setInterval((() => this.checkAllForUpdates(API)), API.Settings.get("updateInterval", 18e5));
-    }
-    defaultSettings() {
-        return {
-            updateInterval: {
-                value: 18e5
-            },
-            releaseBranch: {
-                value: "stable"
-            }
-        };
+        this.updateAllInterval = setInterval((() => this.checkAllForUpdates(API)), 9e5);
     }
     firstLoad({Logger}) {
         Logger.info("Detected first load.");
         const time = new Date;
         BdApi.Plugins.getAll().forEach((plugin => {
             plugin.litelib && plugin.instance != this && (Logger.info(`Reloading ${plugin.name}.`), 
-            fs.promises.utimes(path.resolve(BdApi.Plugins.folder, plugin.filename), time, time).catch((() => {})));
+            fs.promises.utimes(path.resolve(BdApi.Plugins.folder, plugin.filename), time, time).catch((e => {
+                Logger.error(`Error while reloading ${plugin.name}.`, e);
+            })));
         }));
     }
     async checkAllForUpdates({Settings}) {
-        Settings.get("updateInterval", 18e5) <= 0 || BdApi.Plugins.getAll().forEach((plugin => {
+        Settings.get("periodicUpdateChecking", !0) || BdApi.Plugins.getAll().forEach((plugin => {
             plugin.litelib && plugin.version && plugin.updateUrl && Updater.checkForUpdate(plugin.name);
         }));
+    }
+    getSettingsPanel() {
+        return () => {
+            const {Modules, Settings} = this.useSettings(), SwitchItem = Modules.findByDisplayName("SwitchItem");
+            return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(SwitchItem, {
+                note: "Enable periodically checking for updates.",
+                value: Settings.get("periodicUpdateChecking", !0),
+                onChange: value => Settings.set("periodicUpdateChecking", value)
+            }, "Periodic Update Checks"));
+        };
     }
 }
 

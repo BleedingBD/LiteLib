@@ -1,11 +1,7 @@
-interface ToastOptions {
-    type?: '' | 'success' | 'info' | ('warn' | 'warning') | ('error' | 'danger');
-    timeout?: number;
-    icon?: boolean;
-}
+import { ToastOptions } from "../../@types/betterdiscord__bdapi";
 
 export default class Toasts{
-    static show(content: string, options?: ToastOptions): void{ BdApi.showToast(content, options); }
+    static show = BdApi.showToast;
     static success(content: string, options?: ToastOptions): void{ BdApi.showToast(content, {...options, type: 'success'}); }
     static info(content: string, options?: ToastOptions): void{ BdApi.showToast(content, {...options, type: 'info'}); }
     static warn(content: string, options?: ToastOptions): void{ BdApi.showToast(content, {...options, type: 'warn'}); }
