@@ -2,16 +2,6 @@ import Notices, { CloseFn } from "@common/Notices";
 import { createHTMLElement } from "@common/Utilities";
 import { applyUpdate } from "./UpdatePerformer";
 
-BdApi.injectCSS("ll-update-notice",`
-.ll-update-notice-plugin {
-    cursor: pointer;
-    padding-left: .2em;
-}
-.ll-update-notice-plugin:hover {
-    text-decoration: underline;
-}
-`);
-
 const pluginsList: HTMLElement = createHTMLElement("span", {className: "ll-update-notice-list"});
 const noticeNode: HTMLElement = createHTMLElement("span", {className: "ll-update-notice"},
     "The following plugins have updates: ",
