@@ -1,7 +1,7 @@
 /// <reference types="react" />
+import { CancelPatch, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherOptions, ToastOptions, BdPlugin } from "../../@types/BdApi";
 import React from "react";
 import { ReactNode } from "react";
-import { ToastOptions, BdPlugin } from "../../@types/betterdiscord__bdapi";
 declare module ModulesWrapper {
     export { Modules };
 }
@@ -68,8 +68,8 @@ declare namespace Core {
          * @returns The module, or undefined if not found.
          */
         static findByDisplayName(displayName: string): any;
-        static find: (filter: (module: any) => boolean) => any;
-        static findAll: (filter: (module: any) => boolean) => any[];
+        static find: typeof import("../@types/BdApi").BdApiModule.findModule;
+        static findAll: typeof import("../@types/BdApi").BdApiModule.findAllModules;
     }
     import StaticModules = ModulesWrapper.Modules;
     class Modules$0 {
@@ -94,16 +94,6 @@ declare namespace Core {
          */
         findAll(name: string, predicate: Predicate): any[] | undefined;
     }
-    type PatcherBeforeCallback = (thisArg: any, args: any[]) => any;
-    type PatcherAfterCallback = (thisArg: any, args: any[], result: any) => any;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    type PatcherInsteadCallback = (thisArg: any, args: any[], originalFn: Function) => any;
-    type UnpatchFn = () => void;
-    type PatcherOptions = {
-        type?: "before" | "after" | "instead";
-        displayName?: string;
-        forcePatch?: boolean;
-    };
     interface Patcher {
         /**
          * This method patches onto another function, allowing your code to run beforehand.
@@ -116,7 +106,7 @@ declare namespace Core {
          * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
          * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
          */
-        before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): UnpatchFn;
+        before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): CancelPatch;
         /**
          * This method patches onto another function, allowing your code to run after.
          * Using this, you are also able to modify the return value, using the return of your code instead.
@@ -128,7 +118,7 @@ declare namespace Core {
          * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
          * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
          */
-        after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): UnpatchFn;
+        after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): CancelPatch;
         /**
          * This method patches onto another function, allowing your code to run instead.
          * Using this, you are also able to modify the return value, using the return of your code instead.
@@ -140,7 +130,7 @@ declare namespace Core {
          * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
          * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
          */
-        instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): UnpatchFn;
+        instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): CancelPatch;
         /**
          * Removes all patches that were done with this Patcher instance.
          */
@@ -305,7 +295,7 @@ declare namespace Core {
         onClick: (close: CloseFn) => void;
     }
     class Modals {
-        static showConfirmationDialog: (title: string, content: string, options?: import("../@types/betterdiscord__bdapi").ConfirmationModalOptions | undefined) => void;
+        static showConfirmationDialog: typeof import("../@types/BdApi").BdApiModule.showConfirmationModal;
         static show(title: string, panel: Node | React.FC | React.Component | ReactNode, buttons?: ButtonDefintion[]): any;
         static showPluginSettings(pluginName: string): void;
         static showPluginChangelog(pluginName: string): void;
@@ -338,7 +328,7 @@ declare namespace Core {
         private static ensureContainer;
     }
     class Toasts {
-        static show: (content: string, options?: ToastOptions | undefined) => void;
+        static show: typeof import("../@types/BdApi").BdApiModule.showToast;
         /** Shorthand for BdApi.showToast with type set to 'success' */
         static success(content: string, options?: ToastOptions): void;
         /** Shorthand for BdApi.showToast with type set to 'info' */
@@ -667,8 +657,8 @@ declare class Modules {
      * @returns The module, or undefined if not found.
      */
     static findByDisplayName(displayName: string): any;
-    static find: (filter: (module: any) => boolean) => any;
-    static findAll: (filter: (module: any) => boolean) => any[];
+    static find: typeof import("../@types/BdApi").BdApiModule.findModule;
+    static findAll: typeof import("../@types/BdApi").BdApiModule.findAllModules;
 }
 declare module ModulesWrapper {
     export { Modules };
@@ -696,16 +686,6 @@ declare class Modules$0 {
      */
     findAll(name: string, predicate: Predicate): any[] | undefined;
 }
-type PatcherBeforeCallback = (thisArg: any, args: any[]) => any;
-type PatcherAfterCallback = (thisArg: any, args: any[], result: any) => any;
-// eslint-disable-next-line @typescript-eslint/ban-types
-type PatcherInsteadCallback = (thisArg: any, args: any[], originalFn: Function) => any;
-type UnpatchFn = () => void;
-type PatcherOptions = {
-    type?: "before" | "after" | "instead";
-    displayName?: string;
-    forcePatch?: boolean;
-};
 interface Patcher {
     /**
      * This method patches onto another function, allowing your code to run beforehand.
@@ -718,7 +698,7 @@ interface Patcher {
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): UnpatchFn;
+    before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): CancelPatch;
     /**
      * This method patches onto another function, allowing your code to run after.
      * Using this, you are also able to modify the return value, using the return of your code instead.
@@ -730,7 +710,7 @@ interface Patcher {
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): UnpatchFn;
+    after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): CancelPatch;
     /**
      * This method patches onto another function, allowing your code to run instead.
      * Using this, you are also able to modify the return value, using the return of your code instead.
@@ -742,7 +722,7 @@ interface Patcher {
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): UnpatchFn;
+    instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): CancelPatch;
     /**
      * Removes all patches that were done with this Patcher instance.
      */
@@ -907,7 +887,7 @@ interface ButtonDefintion {
     onClick: (close: CloseFn) => void;
 }
 declare class Modals {
-    static showConfirmationDialog: (title: string, content: string, options?: import("../@types/betterdiscord__bdapi").ConfirmationModalOptions | undefined) => void;
+    static showConfirmationDialog: typeof import("../@types/BdApi").BdApiModule.showConfirmationModal;
     static show(title: string, panel: Node | React.FC | React.Component | ReactNode, buttons?: ButtonDefintion[]): any;
     static showPluginSettings(pluginName: string): void;
     static showPluginChangelog(pluginName: string): void;
@@ -940,7 +920,7 @@ declare class Notices {
     private static ensureContainer;
 }
 declare class Toasts {
-    static show: (content: string, options?: ToastOptions | undefined) => void;
+    static show: typeof import("../@types/BdApi").BdApiModule.showToast;
     /** Shorthand for BdApi.showToast with type set to 'success' */
     static success(content: string, options?: ToastOptions): void;
     /** Shorthand for BdApi.showToast with type set to 'info' */

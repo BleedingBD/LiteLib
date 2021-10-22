@@ -1,14 +1,5 @@
-type PatcherBeforeCallback = (thisArg: any, args: any[])=>any;
-type PatcherAfterCallback = (thisArg: any, args: any[], result: any)=>any;
-// eslint-disable-next-line @typescript-eslint/ban-types
-type PatcherInsteadCallback = (thisArg: any, args: any[], originalFn: Function)=>any;
+import { CancelPatch, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherOptions } from "../../@types/BdApi";
 
-type UnpatchFn = ()=>void;
-type PatcherOptions = {
-    type?: "before"|"after"|"instead";
-    displayName?: string;
-    forcePatch?: boolean;
-};
 export interface Patcher{
     /**
      * This method patches onto another function, allowing your code to run beforehand.
@@ -21,7 +12,7 @@ export interface Patcher{
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): UnpatchFn;
+    before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): CancelPatch;
 
     /**
      * This method patches onto another function, allowing your code to run after.
@@ -34,7 +25,7 @@ export interface Patcher{
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): UnpatchFn;
+    after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): CancelPatch;
 
     /**
      * This method patches onto another function, allowing your code to run instead.
@@ -47,7 +38,7 @@ export interface Patcher{
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): UnpatchFn;
+    instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): CancelPatch;
     
     /**
      * Removes all patches that were done with this Patcher instance.

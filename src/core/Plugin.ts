@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import { BdPlugin } from "../../@types/BdApi";
 import Updater from "./Updater";
 import API from "../api";
 import React from "react";
-import { BdPlugin } from "../../@types/betterdiscord__bdapi";
 import { parseMetadata } from "@common/MetadataParser";
 import { suppressErrors, useGeneric } from "@common/Utilities";
 

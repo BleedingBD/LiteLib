@@ -1,0 +1,3 @@
+[submodule "@types/BdApi"]
+	path = @types/BdApi
+	url = https://github.com/QbDesu/BdApi-typedefs.git
