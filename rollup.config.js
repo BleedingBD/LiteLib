@@ -1,5 +1,6 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
+import ts from "rollup-plugin-ts";
 import commonjs from "@rollup/plugin-commonjs";
 import styles from "rollup-plugin-styles";
 import {terser} from "rollup-plugin-terser";
@@ -25,7 +26,7 @@ export default {
                 }
             ]
         }),
-        typescript(),
+        ts(),
         commonjs(),
         terser({
             compress: {

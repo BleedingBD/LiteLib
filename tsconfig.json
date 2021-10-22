@@ -9,6 +9,7 @@
         "jsxFactory": "BdApi.React.createElement",
         "jsxFragmentFactory": "BdApi.React.Fragment",
         "outDir": "dist",
+        "declaration": true,
         "baseUrl": "src",
         "paths": {
             "@common/*": ["common/*"]

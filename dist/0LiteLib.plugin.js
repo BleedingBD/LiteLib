@@ -143,6 +143,15 @@ function createHTMLElement(tag, attrs, ...children) {
     element;
 }
 
+function suppressErrors(func, name, async = !1) {
+    try {
+        const ret = func();
+        return async && ret instanceof Promise ? ret.catch((error => Logger$1.trace(name || "SuppressedError", "Suppressed an error that was wrapped using suppressErrors", error))) : ret;
+    } catch (error) {
+        Logger$1.trace(name || "SuppressedError", "Suppressed an error that was wrapped using suppressErrors", error);
+    }
+}
+
 const walkable = [ "props", "state", "children", "sibling", "child" ];
 
 function useGeneric(on, off, ...dependencies) {
@@ -155,12 +164,7 @@ function useGeneric(on, off, ...dependencies) {
 var Utilities = Object.freeze({
     __proto__: null,
     createHTMLElement,
-    suppressErrors: function suppressErrors(func, message, async = !1) {
-        const ret = BdApi.suppressErrors(func);
-        async && ret instanceof Promise && ret.catch((e => {
-            Logger$1.trace("SuppressedError", "Error occurred in " + message, e);
-        }));
-    },
+    suppressErrors,
     findInReactTree: function findInReactTree(root, predicate) {
         if (predicate(root)) return root;
         if (Array.isArray(root)) for (const child of root) {
@@ -662,13 +666,13 @@ class PluginBase {
     API;
     constructor(metadata) {
         this.metadata = metadata, this.name = metadata.name, this.API = new Api(metadata), 
-        this.API.Data.on("change", ((key, value) => this.onDataChanged?.(key, value))), 
-        this.API.Settings.on("change", ((key, value) => this.onSettingsChanged?.(key, value)));
+        this.API.Data.on("change", ((key, value) => this.suppressErrors((() => this.onDataChanged?.(key, value))))), 
+        this.API.Settings.on("change", ((key, value) => this.suppressErrors((() => this.onSettingsChanged?.(key, value)))));
     }
     load() {
         "function" == typeof this.firstLoad && setTimeout((() => this.checkForFirstLaunch()), 0), 
         "function" == typeof this.getChangelogPanel && setTimeout((() => this.checkForChangelog()), 0), 
-        this.checkForUpdate(), this.initialize?.(this.API);
+        this.checkForUpdate(), this.suppressErrors((() => this.initialize?.(this.API)));
     }
     async checkForFirstLaunch() {
         const Data = this.API.Data;
@@ -683,11 +687,13 @@ class PluginBase {
         await Updater.checkForUpdate(this.metadata);
     }
     start() {
-        const API = this.API;
-        this.setup?.(API), this.patch?.(API), this.style?.(API), "function" == typeof this.css && API.Styler.add("css", this.css());
+        const {API} = this;
+        this.suppressErrors((() => this.setup?.(API))), this.suppressErrors((() => this.patch?.(API))), 
+        this.suppressErrors((() => this.style?.(API))), this.suppressErrors((() => this.css && API.Styler.add("css", this.css())));
     }
     stop() {
-        this.cleanup?.(this.API), this.unpatch?.(this.API), this.unstyle?.(this.API);
+        this.suppressErrors((() => this.cleanup?.(this.API))), this.suppressErrors((() => this.unpatch?.(this.API))), 
+        this.suppressErrors((() => this.unstyle?.(this.API)));
     }
     unpatch({Patcher}) {
         Patcher.unpatchAll();
@@ -696,10 +702,12 @@ class PluginBase {
         Styler.removeAll();
     }
     reloadPatches() {
-        this.unpatch?.(this.API), this.patch?.(this.API);
+        this.suppressErrors((() => this.unpatch?.(this.API))), this.suppressErrors((() => this.patch?.(this.API)));
     }
     reloadStyles() {
-        this.unstyle?.(this.API), this.style?.(this.API), "function" == typeof this.css && this.API.Styler.add("css", this.css());
+        const {API} = this;
+        this.suppressErrors((() => this.unstyle?.(API))), this.suppressErrors((() => this.style?.(API))), 
+        this.suppressErrors((() => this.css && API.Styler.add("css", this.css())));
     }
     useSettings() {
         const {Settings} = this.API;
@@ -712,6 +720,9 @@ class PluginBase {
         return useGeneric((forceUpdate => Data.on("change", forceUpdate)), (forceUpdate => {
             Data.off("change", forceUpdate);
         }), Data), this.API;
+    }
+    suppressErrors(func, async) {
+        return suppressErrors(func, this.name, async);
     }
 }
 
