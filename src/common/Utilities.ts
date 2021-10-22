@@ -32,12 +32,17 @@ export function createHTMLElement(
  * Wraps a function in a try/catch block, runs it and logs any errors to the console.
  * If async is true and the function returns a Promise, the error will be caught and logged.
  * @param func The function to run
- * @param message A message to log if there is an error
+ * @param name An optional name to log the error with
  * @param async If true, returned Promises will be caught and logged
  */
-export function suppressErrors(func: () => void, message?: string, async = false) {
-    const ret = BdApi.suppressErrors(func);
-    if (async && ret instanceof Promise) ret.catch((e) => {Logger.trace("SuppressedError", "Error occurred in " + message, e);});
+export function suppressErrors(func: () => any, name?: string, async = false): any {
+    try {
+        const ret = func();
+        if (async && ret instanceof Promise) return ret.catch(error => Logger.trace(name||"SuppressedError", "Suppressed an error that was wrapped using suppressErrors", error));
+        return ret;
+    } catch (error) {
+        Logger.trace(name||"SuppressedError", "Suppressed an error that was wrapped using suppressErrors", error);
+    }
 }
 
 const walkable = ["props", "state", "children", "sibling", "child"];

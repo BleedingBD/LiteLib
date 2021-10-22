@@ -5,7 +5,7 @@ import API from "../api";
 import React from "react";
 import { BdPlugin } from "../../@types/betterdiscord__bdapi";
 import { parseMetadata } from "@common/MetadataParser";
-import { useGeneric } from "@common/Utilities";
+import { suppressErrors, useGeneric } from "@common/Utilities";
 
 export declare interface LiteLibPlugin extends BdPlugin {
     /**
@@ -78,6 +78,13 @@ export declare interface LiteLibPlugin extends BdPlugin {
     useSettings(): API;
     /** A react hook that will automatically trigger a re-render when any plugin data changes. */
     useData(): API;
+    /**
+     * Wraps a function in a try/catch block, runs it and logs any errors to the console.
+     * If async is true and the function returns a Promise, the error will be caught and logged.
+     * @param func The function to run
+     * @param async If true, returned Promises will be caught and logged
+     */
+    suppressErrors(func: () => any, async?: boolean): any;
 
     /**
      * The css string returned by this method will automatically be added to the document as a stylesheet regardless of whether `style` has been overridden.
@@ -108,15 +115,15 @@ export abstract class PluginBase implements LiteLibPlugin {
         this.metadata = metadata;
         this.name = metadata.name;
         this.API = new API(metadata);
-        this.API.Data.on("change", (key, value) => this.onDataChanged?.(key, value));
-        this.API.Settings.on("change", (key, value) => this.onSettingsChanged?.(key, value));
+        this.API.Data.on("change", (key, value) => this.suppressErrors(()=>this.onDataChanged?.(key, value)));
+        this.API.Settings.on("change", (key, value) => this.suppressErrors(()=>this.onSettingsChanged?.(key, value)));
     }
 
     load(): void {
         if(typeof this.firstLoad == "function") setTimeout(()=>this.checkForFirstLaunch(),0);
         if(typeof this.getChangelogPanel == "function") setTimeout(()=>this.checkForChangelog(),0);
         this.checkForUpdate();
-        this.initialize?.(this.API);
+        this.suppressErrors(()=>this.initialize?.(this.API));
     }
     initialize?(api: API): void;
     firstLoad?(api: API): void;
@@ -142,33 +149,34 @@ export abstract class PluginBase implements LiteLibPlugin {
     }
 
     start(): void {
-        const API = this.API;
-        this.setup?.(API);
-        this.patch?.(API);
-        this.style?.(API);
-        if(typeof this.css == "function") API.Styler.add("css", this.css());
+        const { API } = this;
+        this.suppressErrors(()=>this.setup?.(API));
+        this.suppressErrors(()=>this.patch?.(API));
+        this.suppressErrors(()=>this.style?.(API));
+        this.suppressErrors(()=>this.css && API.Styler.add("css", this.css()));
     }
     setup?(api: API): void;
     patch?(api: API): void;
     style?(api: API): void;
 
     stop(): void {
-        this.cleanup?.(this.API);
-        this.unpatch?.(this.API);
-        this.unstyle?.(this.API)
+        this.suppressErrors(()=>this.cleanup?.(this.API));
+        this.suppressErrors(()=>this.unpatch?.(this.API));
+        this.suppressErrors(()=>this.unstyle?.(this.API));
     }
     cleanup?(api: API): void;
     unpatch?({Patcher}: API): void{ Patcher.unpatchAll(); }
     unstyle?({Styler}: API): void{ Styler.removeAll(); }
 
     reloadPatches(): void {
-        this.unpatch?.(this.API);
-        this.patch?.(this.API);
+        this.suppressErrors(()=>this.unpatch?.(this.API));
+        this.suppressErrors(()=>this.patch?.(this.API));
     }
     reloadStyles(): void {
-        this.unstyle?.(this.API);
-        this.style?.(this.API);
-        if(typeof this.css == "function") this.API.Styler.add("css", this.css());
+        const { API } = this;
+        this.suppressErrors(()=>this.unstyle?.(API));
+        this.suppressErrors(()=>this.style?.(API));
+        this.suppressErrors(()=>this.css && API.Styler.add("css", this.css()));
     }
 
     useSettings(): API {
@@ -193,6 +201,10 @@ export abstract class PluginBase implements LiteLibPlugin {
     getChangelogPanel?(): Node|React.FC|React.Component|string;
 
     css?(): string;
+
+    suppressErrors(func: () => any, async?: boolean): any {
+        return suppressErrors(func, this.name, async);
+    }
 
     onDataChanged?(key: string, value: any): void;
     onSettingsChanged?(key: string, value: any): void;
