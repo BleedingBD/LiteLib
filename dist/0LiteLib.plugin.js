@@ -1,15 +1,15 @@
 /**
  * @name LiteLib
- * @version 0.5.0
+ * @version 0.5.1
  * @description A lightweight library for creating BetterDiscord plugins.
  * @license Unlicense
  * @author Qb
- * @litelib ^0.5.0
+ * @litelib ^0.5.1
  * @pluginPath 0LiteLib.plugin.js
  * @configPath 0LiteLib.config.json
  * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js
+ * @dependencies :
  *
- * @dependencies
  *
  * semiver -- 1.1.0
  * License: MIT
@@ -725,7 +725,7 @@ var Core = Object.freeze({
     Utilities
 });
 
-BdApi.injectCSS("LiteLib-index.scss", ".ll-notice-success {\n  --color: #3ba55d;\n}\n\n.ll-notice-error {\n  --color: #ED4245;\n}\n\n.ll-notice-info {\n  --color: #4A8FE1;\n}\n\n.ll-notice-warning {\n  --color: #FAA81A;\n}\n\n.ll-notice-closing {\n  transition: height 400ms ease;\n  height: 0 !important;\n}\n\n@keyframes ll-open-notice {\n  from {\n\theight: 0;\n  }\n}\n.ll-notice {\n  animation: ll-open-notice 400ms ease;\n  overflow: hidden;\n  height: 36px;\n  font-size: 14px;\n  line-height: 36px;\n  font-weight: 500;\n  text-align: center;\n  position: relative;\n  padding-left: 4px;\n  padding-right: 28px;\n  z-index: 101;\n  flex: 0 0;\n  box-shadow: var(--elevation-low);\n  color: #fff;\n  background: var(--color, var(--brand-experiment-600, #3C45A5));\n}\n\n.ll-notice:first-child {\n  border-radius: 8px 0 0;\n}\n\n.ll-notice-close {\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 36px;\n  height: 36px;\n  background: url(https://discord.com/assets/7731c77d99babca1a8faec204d98c380.svg) no-repeat;\n  background-position: 50% 55%;\n  background-size: 10px 10px;\n  opacity: 0.5;\n  transition: opacity 0.2s;\n  cursor: pointer;\n  -webkit-app-region: no-drag;\n}\n\n.ll-notice-button {\n  font-size: 14px;\n  font-weight: 500;\n  position: relative;\n  top: 6px;\n  border: 1px solid;\n  color: #fff;\n  border-radius: 3px;\n  height: 24px;\n  padding: 0 10px;\n  box-sizing: border-box;\n  display: inline-block;\n  vertical-align: top;\n  margin-left: 10px;\n  line-height: 22px;\n  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;\n  -webkit-app-region: no-drag;\n  border-color: #fff;\n  background: transparent;\n}\n\n.ll-notice-button:hover {\n  color: var(--color, var(--background-mobile-primary));\n  background: #fff;\n}\n\n.ll-notice-close:hover {\n  opacity: 1;\n}\n\n.ll-update-notice-plugin {\n  cursor: pointer;\n  padding-left: 0.2em;\n}\n\n.ll-update-notice-plugin:hover {\n  text-decoration: underline;\n}");
+BdApi.injectCSS("LiteLib-index.scss", ".ll-update-notice-plugin {\n  cursor: pointer;\n  padding-left: 0.2em;\n}\n\n.ll-update-notice-plugin:hover {\n  text-decoration: underline;\n}");
 
 class LiteLib extends(Plugin()){
     updateAllInterval;

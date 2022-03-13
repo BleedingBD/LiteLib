@@ -7,8 +7,8 @@
 @pluginPath <%= pkg.pluginPath %>
 @configPath <%= pkg.configPath %>
 @updateUrl <%= pkg.updateUrl %>
+@dependencies :
 
-@dependencies
 <% _.forEach(dependencies, function (dependency) { %>
 <%= dependency.name %> -- <%= dependency.version %>
 License: <%= dependency.license %>
