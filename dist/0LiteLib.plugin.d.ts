@@ -1,5 +1,6 @@
+/// <reference types="betterdiscord__bdapi" />
 /// <reference types="react" />
-import { CancelPatch, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherOptions, ToastOptions, BdPlugin } from "../../@types/BdApi";
+import { CancelPatch, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherOptions, NoticeOptions, NoticeCloseFn, ToastOptions, BdPlugin } from "@betterdiscord/bdapi";
 import React from "react";
 import { ReactNode } from "react";
 declare module ModulesWrapper {
@@ -68,8 +69,8 @@ declare namespace Core {
          * @returns The module, or undefined if not found.
          */
         static findByDisplayName(displayName: string): any;
-        static find: typeof import("../@types/BdApi").BdApiModule.findModule;
-        static findAll: typeof import("../@types/BdApi").BdApiModule.findAllModules;
+        static find: typeof import("@betterdiscord/bdapi").BdApiModule.findModule;
+        static findAll: typeof import("@betterdiscord/bdapi").BdApiModule.findAllModules;
     }
     import StaticModules = ModulesWrapper.Modules;
     class Modules$0 {
@@ -295,40 +296,24 @@ declare namespace Core {
         onClick: (close: CloseFn) => void;
     }
     class Modals {
-        static showConfirmationDialog: typeof import("../@types/BdApi").BdApiModule.showConfirmationModal;
+        static showConfirmationDialog: typeof import("@betterdiscord/bdapi").BdApiModule.showConfirmationModal;
         static show(title: string, panel: Node | React.FC | React.Component | ReactNode, buttons?: ButtonDefintion[]): any;
         static showPluginSettings(pluginName: string): void;
         static showPluginChangelog(pluginName: string): void;
     }
-    /**
-     * This is directly taken from Strencher's Notices API pull request for BetterDiscord.
-     * It will be removed and replaced with a thin wrapper around the API once it's merged.
-     * As this code is taken from BetterDiscord the respective license applies.
-     */
-    type CloseFn$0 = (immediately?: boolean) => void;
-    type NoticeOptions = {
-        type?: "info" | "warning" | "error" | "success";
-        buttons?: {
-            label: string;
-            onClick?: (closeFn: () => void) => void;
-        }[];
-        timeout?: number;
-    };
     class Notices {
-        private static get baseClass();
+        static show: typeof import("@betterdiscord/bdapi").BdApiModule.showNotice;
         /** Shorthand for `type = "info"` for {@link module:Notices.show} */
-        static info(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
+        static info(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
         /** Shorthand for `type = "warning"` for {@link module:Notices.show} */
-        static warn(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
+        static warn(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
         /** Shorthand for `type = "error"` for {@link module:Notices.show} */
-        static error(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
+        static error(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
         /** Shorthand for `type = "success"` for {@link module:Notices.show} */
-        static success(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
-        static show(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
-        private static ensureContainer;
+        static success(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
     }
     class Toasts {
-        static show: typeof import("../@types/BdApi").BdApiModule.showToast;
+        static show: typeof import("@betterdiscord/bdapi").BdApiModule.showToast;
         /** Shorthand for BdApi.showToast with type set to 'success' */
         static success(content: string, options?: ToastOptions): void;
         /** Shorthand for BdApi.showToast with type set to 'info' */
@@ -487,7 +472,7 @@ declare namespace Core {
         Notices: typeof Notices;
         Toasts: typeof Toasts;
         React: typeof import("react");
-        ReactDOM: any;
+        ReactDOM: typeof import("react-dom");
         constructor(pluginMetadata: Record<string, string>);
     }
     import API = ApiWrapper.Api;
@@ -657,8 +642,8 @@ declare class Modules {
      * @returns The module, or undefined if not found.
      */
     static findByDisplayName(displayName: string): any;
-    static find: typeof import("../@types/BdApi").BdApiModule.findModule;
-    static findAll: typeof import("../@types/BdApi").BdApiModule.findAllModules;
+    static find: typeof import("@betterdiscord/bdapi").BdApiModule.findModule;
+    static findAll: typeof import("@betterdiscord/bdapi").BdApiModule.findAllModules;
 }
 declare module ModulesWrapper {
     export { Modules };
@@ -887,40 +872,24 @@ interface ButtonDefintion {
     onClick: (close: CloseFn) => void;
 }
 declare class Modals {
-    static showConfirmationDialog: typeof import("../@types/BdApi").BdApiModule.showConfirmationModal;
+    static showConfirmationDialog: typeof import("@betterdiscord/bdapi").BdApiModule.showConfirmationModal;
     static show(title: string, panel: Node | React.FC | React.Component | ReactNode, buttons?: ButtonDefintion[]): any;
     static showPluginSettings(pluginName: string): void;
     static showPluginChangelog(pluginName: string): void;
 }
-/**
- * This is directly taken from Strencher's Notices API pull request for BetterDiscord.
- * It will be removed and replaced with a thin wrapper around the API once it's merged.
- * As this code is taken from BetterDiscord the respective license applies.
- */
-type CloseFn$0 = (immediately?: boolean) => void;
-type NoticeOptions = {
-    type?: "info" | "warning" | "error" | "success";
-    buttons?: {
-        label: string;
-        onClick?: (closeFn: () => void) => void;
-    }[];
-    timeout?: number;
-};
 declare class Notices {
-    private static get baseClass();
+    static show: typeof import("@betterdiscord/bdapi").BdApiModule.showNotice;
     /** Shorthand for `type = "info"` for {@link module:Notices.show} */
-    static info(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
+    static info(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
     /** Shorthand for `type = "warning"` for {@link module:Notices.show} */
-    static warn(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
+    static warn(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
     /** Shorthand for `type = "error"` for {@link module:Notices.show} */
-    static error(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
+    static error(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
     /** Shorthand for `type = "success"` for {@link module:Notices.show} */
-    static success(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
-    static show(content: Node | string, options?: NoticeOptions): CloseFn$0 | undefined;
-    private static ensureContainer;
+    static success(content: Node | string, options?: NoticeOptions): NoticeCloseFn | undefined;
 }
 declare class Toasts {
-    static show: typeof import("../@types/BdApi").BdApiModule.showToast;
+    static show: typeof import("@betterdiscord/bdapi").BdApiModule.showToast;
     /** Shorthand for BdApi.showToast with type set to 'success' */
     static success(content: string, options?: ToastOptions): void;
     /** Shorthand for BdApi.showToast with type set to 'info' */
@@ -1079,7 +1048,7 @@ declare class Api implements API {
     Notices: typeof Notices;
     Toasts: typeof Toasts;
     React: typeof import("react");
-    ReactDOM: any;
+    ReactDOM: typeof import("react-dom");
     constructor(pluginMetadata: Record<string, string>);
 }
 declare module ApiWrapper {

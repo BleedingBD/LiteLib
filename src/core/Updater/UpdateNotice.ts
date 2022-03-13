@@ -1,4 +1,5 @@
-import Notices, { CloseFn } from "@common/Notices";
+import { NoticeCloseFn } from "@betterdiscord/bdapi";
+import Notices from "@common/Notices";
 import { createHTMLElement } from "@common/Utilities";
 import { applyUpdate } from "./UpdatePerformer";
 
@@ -7,7 +8,7 @@ const noticeNode: HTMLElement = createHTMLElement("span", {className: "ll-update
     "The following plugins have updates: ",
     pluginsList);
 
-let currentCloseFunction: CloseFn | undefined;
+let currentCloseFunction: NoticeCloseFn | undefined;
 
 export const update = (outdatedPlugins: string[]) => {
     const isShown = currentCloseFunction && document.contains(noticeNode);

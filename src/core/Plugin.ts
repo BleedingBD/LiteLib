@@ -1,4 +1,4 @@
-import { BdPlugin } from "../../@types/BdApi";
+import { BdPlugin } from "@betterdiscord/bdapi";
 import Updater from "./Updater";
 import API from "../api";
 import React from "react";

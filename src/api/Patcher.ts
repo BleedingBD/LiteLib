@@ -1,4 +1,4 @@
-import { CancelPatch, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherOptions } from "../../@types/BdApi";
+import { CancelPatch, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherOptions } from "@betterdiscord/bdapi";
 
 export interface Patcher{
     /**

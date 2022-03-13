@@ -1,112 +1,63 @@
 /**
  * @name LiteLib
- * @version 0.4.0
+ * @version 0.5.0
  * @description A lightweight library for creating BetterDiscord plugins.
  * @license Unlicense
  * @author Qb
- * @litelib ^0.4.0
+ * @litelib ^0.5.0
  * @pluginPath 0LiteLib.plugin.js
  * @configPath 0LiteLib.config.json
  * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js
  *
  * @dependencies
  *
+ * semiver -- 1.1.0
+ * License: MIT
+ * Author: Luke Edwards
+ *
+ *
  * tslib -- 2.3.1
  * License: 0BSD
  * Author: Microsoft Corp.
  * Homepage: https://www.typescriptlang.org/
  *
- * typescript-memoize -- 1.0.1
+ * typescript-memoize -- 1.1.0
  * License: MIT
  * Author: Darryl Hodgins
  * Homepage: https://github.com/darrylhodgins/typescript-memoize#readme
- *
- * semiver -- 1.1.0
- * License: MIT
- * Author: Luke Edwards
  */
 
 "use strict";
 
 var fs = require("fs"), path = require("path");
 
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-function __decorate(decorators, target, key, desc) {
-    var d, c = arguments.length, r = c < 3 ? target : null === desc ? desc = Object.getOwnPropertyDescriptor(target, key) : desc;
-    if ("object" == typeof Reflect && "function" == typeof Reflect.decorate) r = Reflect.decorate(decorators, target, key, desc); else for (var i = decorators.length - 1; i >= 0; i--) (d = decorators[i]) && (r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r);
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-}
-
-function Memoize(autoHashOrHashFn) {
-    return (target, propertyKey, descriptor) => {
-        if (null != descriptor.value) descriptor.value = getNewFunction(descriptor.value, autoHashOrHashFn); else {
-            if (null == descriptor.get) throw "Only put a Memoize() decorator on a method or get accessor.";
-            descriptor.get = getNewFunction(descriptor.get, autoHashOrHashFn);
-        }
-    };
-}
-
-let counter = 0;
-
-function getNewFunction(originalMethod, autoHashOrHashFn, duration = 0) {
-    const identifier = ++counter;
-    return function(...args) {
-        const propValName = `__memoized_value_${identifier}`, propMapName = `__memoized_map_${identifier}`;
-        let returnedValue;
-        if (autoHashOrHashFn || args.length > 0 || duration > 0) {
-            this.hasOwnProperty(propMapName) || Object.defineProperty(this, propMapName, {
-                configurable: !1,
-                enumerable: !1,
-                writable: !1,
-                value: new Map
-            });
-            let hashKey, myMap = this[propMapName];
-            hashKey = !0 === autoHashOrHashFn ? args.map((a => a.toString())).join("!") : autoHashOrHashFn ? autoHashOrHashFn.apply(this, args) : args[0];
-            const timestampKey = `${hashKey}__timestamp`;
-            let isExpired = !1;
-            if (duration > 0) if (myMap.has(timestampKey)) {
-                let timestamp = myMap.get(timestampKey);
-                isExpired = Date.now() - timestamp > duration;
-            } else isExpired = !0;
-            myMap.has(hashKey) && !isExpired ? returnedValue = myMap.get(hashKey) : (returnedValue = originalMethod.apply(this, args), 
-            myMap.set(hashKey, returnedValue), duration > 0 && myMap.set(timestampKey, Date.now()));
-        } else this.hasOwnProperty(propValName) ? returnedValue = this[propValName] : (returnedValue = originalMethod.apply(this, args), 
-        Object.defineProperty(this, propValName, {
-            configurable: !1,
-            enumerable: !1,
-            writable: !1,
-            value: returnedValue
-        }));
-        return returnedValue;
-    };
-}
-
-class Modules$1 {
-    static findByProps(...props) {
-        return BdApi.findModuleByProps(...props);
+class Notices {
+    static show=BdApi.showNotice;
+    static info(content, options = {}) {
+        return this.show(content, {
+            ...options,
+            type: "info"
+        });
     }
-    static findByDisplayName(displayName) {
-        return BdApi.findModuleByDisplayName(displayName);
+    static warn(content, options = {}) {
+        return this.show(content, {
+            ...options,
+            type: "warning"
+        });
     }
-    static find=BdApi.findModule;
-    static findAll=BdApi.findAllModules;
+    static error(content, options = {}) {
+        return this.show(content, {
+            ...options,
+            type: "error"
+        });
+    }
+    static success(content, options = {}) {
+        return this.show(content, {
+            ...options,
+            type: "success"
+        });
+    }
 }
-
-__decorate([ Memoize(((...props) => props.join(","))) ], Modules$1, "findByProps", null), 
-__decorate([ Memoize() ], Modules$1, "findByDisplayName", null);
 
 class Logger$1 {
     static style="font-weight: 700; color: blue";
@@ -181,69 +132,6 @@ var Utilities = Object.freeze({
     },
     useGeneric
 });
-
-class Notices {
-    static get baseClass() {
-        return Modules$1.findByProps("container", "base")?.base;
-    }
-    static info(content, options = {}) {
-        return this.show(content, {
-            ...options,
-            type: "info"
-        });
-    }
-    static warn(content, options = {}) {
-        return this.show(content, {
-            ...options,
-            type: "warning"
-        });
-    }
-    static error(content, options = {}) {
-        return this.show(content, {
-            ...options,
-            type: "error"
-        });
-    }
-    static success(content, options = {}) {
-        return this.show(content, {
-            ...options,
-            type: "success"
-        });
-    }
-    static show(content, options = {}) {
-        const {type, buttons = [], timeout = 1e4} = options;
-        if (!this.ensureContainer()) return;
-        const closeNotification = function(immediately = !1) {
-            if (immediately) return noticeElement.remove();
-            noticeElement.classList.add("ll-notice-closing"), setTimeout((() => {
-                noticeElement.remove();
-            }), 300);
-        }, noticeElement = createHTMLElement("div", {
-            className: "ll-notice" + (type ? ` ll-notice-${type}` : "")
-        }, [ createHTMLElement("div", {
-            className: "ll-notice-close",
-            onclick: () => closeNotification()
-        }), createHTMLElement("span", {
-            className: "ll-notice-content"
-        }, content), ...buttons.map((button => button?.label && "function" == typeof button.onClick ? createHTMLElement("button", {
-            className: "ll-notice-button",
-            onclick: button.onClick.bind(null, closeNotification)
-        }, button.label) : null)) ]);
-        return document.getElementById("ll-notices").appendChild(noticeElement), timeout > 0 && setTimeout(closeNotification, timeout), 
-        closeNotification;
-    }
-    static ensureContainer() {
-        if (document.getElementById("ll-notices")) return !0;
-        const container = document.querySelector(`.${this.baseClass}`);
-        if (!container) return !1;
-        const noticeContainer = createHTMLElement("div", {
-            id: "ll-notices"
-        });
-        return container.prepend(noticeContainer), !0;
-    }
-}
-
-__decorate([ Memoize() ], Notices, "baseClass", null);
 
 const COMMENT = /\/\*\*\s*\n([^*]|(\*(?!\/)))*\*\//g, STAR_MATCHER = /^ \* /, FIELD_MATCHER = /^@(\w+)\s+(.*)/m;
 
@@ -371,6 +259,84 @@ class Updater {
         return parseMetadata(await response.text());
     }
 }
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */ function __decorate(decorators, target, key, desc) {
+    var d, c = arguments.length, r = c < 3 ? target : null === desc ? desc = Object.getOwnPropertyDescriptor(target, key) : desc;
+    if ("object" == typeof Reflect && "function" == typeof Reflect.decorate) r = Reflect.decorate(decorators, target, key, desc); else for (var i = decorators.length - 1; i >= 0; i--) (d = decorators[i]) && (r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r);
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+
+function Memoize(args) {
+    let hashFunction, duration, tags;
+    return "object" == typeof args ? (hashFunction = args.hashFunction, duration = args.expiring, 
+    tags = args.tags) : hashFunction = args, (target, propertyKey, descriptor) => {
+        if (null != descriptor.value) descriptor.value = getNewFunction(descriptor.value, hashFunction, duration, tags); else {
+            if (null == descriptor.get) throw "Only put a Memoize() decorator on a method or get accessor.";
+            descriptor.get = getNewFunction(descriptor.get, hashFunction, duration, tags);
+        }
+    };
+}
+
+const clearCacheTagsMap = new Map;
+
+function getNewFunction(originalMethod, hashFunction, duration = 0, tags) {
+    const propMapName = Symbol("__memoized_map__");
+    return function(...args) {
+        let returnedValue;
+        this.hasOwnProperty(propMapName) || Object.defineProperty(this, propMapName, {
+            configurable: !1,
+            enumerable: !1,
+            writable: !1,
+            value: new Map
+        });
+        let myMap = this[propMapName];
+        if (Array.isArray(tags)) for (const tag of tags) clearCacheTagsMap.has(tag) ? clearCacheTagsMap.get(tag).push(myMap) : clearCacheTagsMap.set(tag, [ myMap ]);
+        if (hashFunction || args.length > 0 || duration > 0) {
+            let hashKey;
+            hashKey = !0 === hashFunction ? args.map((a => a.toString())).join("!") : hashFunction ? hashFunction.apply(this, args) : args[0];
+            const timestampKey = `${hashKey}__timestamp`;
+            let isExpired = !1;
+            if (duration > 0) if (myMap.has(timestampKey)) {
+                let timestamp = myMap.get(timestampKey);
+                isExpired = Date.now() - timestamp > duration;
+            } else isExpired = !0;
+            myMap.has(hashKey) && !isExpired ? returnedValue = myMap.get(hashKey) : (returnedValue = originalMethod.apply(this, args), 
+            myMap.set(hashKey, returnedValue), duration > 0 && myMap.set(timestampKey, Date.now()));
+        } else {
+            const hashKey = this;
+            myMap.has(hashKey) ? returnedValue = myMap.get(hashKey) : (returnedValue = originalMethod.apply(this, args), 
+            myMap.set(hashKey, returnedValue));
+        }
+        return returnedValue;
+    };
+}
+
+class Modules$1 {
+    static findByProps(...props) {
+        return BdApi.findModuleByProps(...props);
+    }
+    static findByDisplayName(displayName) {
+        return BdApi.findModuleByDisplayName(displayName);
+    }
+    static find=BdApi.findModule;
+    static findAll=BdApi.findAllModules;
+}
+
+__decorate([ Memoize(((...props) => props.join(","))) ], Modules$1, "findByProps", null), 
+__decorate([ Memoize() ], Modules$1, "findByDisplayName", null);
 
 class Modules {
     findCache=new Map;
@@ -552,7 +518,7 @@ class Modals {
                 className: "ll-modal-content"
             }, child), BdApi.React.createElement(ModalFooter, {
                 className: "ll-modal-footer"
-            }, renderedButtons));
+            }, ...renderedButtons));
         };
         return ModalActions.openModal((props => React.createElement(modal, props)));
     }

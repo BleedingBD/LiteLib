@@ -1,4 +1,4 @@
-import { ToastOptions } from "../../@types/BdApi";
+import { ToastOptions } from "@betterdiscord/bdapi";
 
 export default class Toasts{
     static show = BdApi.showToast;
