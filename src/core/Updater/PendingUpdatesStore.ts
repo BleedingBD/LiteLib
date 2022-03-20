@@ -1,13 +1,13 @@
 interface PendingUpdate {
     name: string;
-    currentMetadata: Record<string, string>,
+    currentMetadata: Record<string, string>;
     remoteMetadata: Record<string, string>;
 }
 
 const pendingUpdates = new Map<string, PendingUpdate>();
 const listeners = new Set<(updates: PendingUpdate[]) => void>();
 
-export default class PendingUpdateStore{
+export default class PendingUpdateStore {
     static getPendingUpdate(name: string): PendingUpdate | undefined {
         return pendingUpdates.get(name);
     }
@@ -16,13 +16,20 @@ export default class PendingUpdateStore{
         return [...pendingUpdates.values()];
     }
 
-    static addPendingUpdate(name: string, currentMetadata: Record<string, string>, remoteMetadata: Record<string, string>): void {
+    static addPendingUpdate(
+        name: string,
+        currentMetadata: Record<string, string>,
+        remoteMetadata: Record<string, string>
+    ): void {
         if (pendingUpdates.has(name)) {
-            if (pendingUpdates.get(name)?.remoteMetadata.version != remoteMetadata.version) {
+            if (
+                pendingUpdates.get(name)?.remoteMetadata.version !=
+                remoteMetadata.version
+            ) {
                 pendingUpdates.set(name, {
                     name,
                     currentMetadata,
-                    remoteMetadata
+                    remoteMetadata,
                 });
                 this.emit();
             }
@@ -30,7 +37,7 @@ export default class PendingUpdateStore{
             pendingUpdates.set(name, {
                 name,
                 currentMetadata,
-                remoteMetadata
+                remoteMetadata,
             });
             this.emit();
         }
@@ -42,10 +49,12 @@ export default class PendingUpdateStore{
     }
 
     static emit(): void {
-        listeners.forEach(listener => listener(this.getPendingUpdates()));
+        listeners.forEach((listener) => listener(this.getPendingUpdates()));
     }
 
-    static subscribe(callback: (pendingUpdates: PendingUpdate[]) => void): void {
+    static subscribe(
+        callback: (pendingUpdates: PendingUpdate[]) => void
+    ): void {
         listeners.add(callback);
     }
 }

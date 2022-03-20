@@ -1,6 +1,12 @@
-import { CancelPatch, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherOptions } from "@betterdiscord/bdapi";
+import {
+    CancelPatch,
+    PatcherAfterCallback,
+    PatcherBeforeCallback,
+    PatcherInsteadCallback,
+    PatcherOptions,
+} from "@betterdiscord/bdapi";
 
-export interface Patcher{
+export interface Patcher {
     /**
      * This method patches onto another function, allowing your code to run beforehand.
      * Using this, you are also able to modify the incoming arguments before the original method is run.
@@ -12,7 +18,12 @@ export interface Patcher{
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    before(target: any, methodName: string, callback: PatcherBeforeCallback, options?: PatcherOptions): CancelPatch;
+    before(
+        target: any,
+        methodName: string,
+        callback: PatcherBeforeCallback,
+        options?: PatcherOptions
+    ): CancelPatch;
 
     /**
      * This method patches onto another function, allowing your code to run after.
@@ -25,7 +36,12 @@ export interface Patcher{
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    after(target: any, methodName: string, callback: PatcherAfterCallback, options?: PatcherOptions): CancelPatch;
+    after(
+        target: any,
+        methodName: string,
+        callback: PatcherAfterCallback,
+        options?: PatcherOptions
+    ): CancelPatch;
 
     /**
      * This method patches onto another function, allowing your code to run instead.
@@ -38,8 +54,13 @@ export interface Patcher{
      * @param options.forcePatch Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
      * @return Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
      */
-    instead(target: any, methodName: string, callback: PatcherInsteadCallback, options?: PatcherOptions): CancelPatch;
-    
+    instead(
+        target: any,
+        methodName: string,
+        callback: PatcherInsteadCallback,
+        options?: PatcherOptions
+    ): CancelPatch;
+
     /**
      * Removes all patches that were done with this Patcher instance.
      */
@@ -53,6 +74,6 @@ export default function Patcher(pluginName: string): Patcher {
         before: BDPatcher.before.bind(BDPatcher, pluginName),
         after: BDPatcher.after.bind(BDPatcher, pluginName),
         instead: BDPatcher.instead.bind(BDPatcher, pluginName),
-        unpatchAll: BDPatcher.unpatchAll.bind(BDPatcher, pluginName)
+        unpatchAll: BDPatcher.unpatchAll.bind(BDPatcher, pluginName),
     };
 }

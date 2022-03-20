@@ -1,5 +1,8 @@
 export default class EventEmitter {
-    private readonly listeners = new Map<string, Array<(...args: any[]) => void>>();
+    private readonly listeners = new Map<
+        string,
+        Array<(...args: any[]) => void>
+    >();
 
     /**
      * Listen to an event.
@@ -27,7 +30,7 @@ export default class EventEmitter {
         }
         return this;
     }
-    
+
     /**
      * Emit an event.
      * @param event the name of the event to emit

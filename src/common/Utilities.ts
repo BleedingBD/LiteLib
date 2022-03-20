@@ -4,9 +4,9 @@ type NodeChild = Node | string | number;
 type NodeChildren = (NodeChild | NodeChildren | null)[];
 
 function applyChildren(node: HTMLElement, children: NodeChildren) {
-    for (const child of children.filter(c=>c||c==0)) {
+    for (const child of children.filter((c) => c || c == 0)) {
         if (Array.isArray(child)) applyChildren(node, child);
-        else node.append(child as string|Node);
+        else node.append(child as string | Node);
     }
 }
 
@@ -19,14 +19,14 @@ function applyChildren(node: HTMLElement, children: NodeChildren) {
  */
 export function createHTMLElement(
     tag: string,
-    attrs?: null | {[key: string]: any},
+    attrs?: null | { [key: string]: any },
     ...children: NodeChildren
 ): HTMLElement {
     const element = document.createElement(tag);
     if (attrs) Object.assign(element, attrs);
     applyChildren(element, children);
     return element;
-};
+}
 
 /**
  * Wraps a function in a try/catch block, runs it and logs any errors to the console.
@@ -35,13 +35,28 @@ export function createHTMLElement(
  * @param name An optional name to log the error with
  * @param async If true, returned Promises will be caught and logged
  */
-export function suppressErrors(func: () => any, name?: string, async = false): any {
+export function suppressErrors(
+    func: () => any,
+    name?: string,
+    async = false
+): any {
     try {
         const ret = func();
-        if (async && ret instanceof Promise) return ret.catch(error => Logger.trace(name||"SuppressedError", "Suppressed an error that was wrapped using suppressErrors", error));
+        if (async && ret instanceof Promise)
+            return ret.catch((error) =>
+                Logger.trace(
+                    name || "SuppressedError",
+                    "Suppressed an error that was wrapped using suppressErrors",
+                    error
+                )
+            );
         return ret;
     } catch (error) {
-        Logger.trace(name||"SuppressedError", "Suppressed an error that was wrapped using suppressErrors", error);
+        Logger.trace(
+            name || "SuppressedError",
+            "Suppressed an error that was wrapped using suppressErrors",
+            error
+        );
     }
 }
 
@@ -52,7 +67,10 @@ const walkable = ["props", "state", "children", "sibling", "child"];
  * @param predicate A function that returns true if the node is the one you want
  * @returns The node that matches the predicate, or undefined if none is found
  */
-export function findInReactTree(root: any, predicate: (node: any) => boolean): any {
+export function findInReactTree(
+    root: any,
+    predicate: (node: any) => boolean
+): any {
     if (predicate(root)) return root;
     if (Array.isArray(root)) {
         for (const child of root) {
@@ -60,7 +78,9 @@ export function findInReactTree(root: any, predicate: (node: any) => boolean): a
             if (found) return found;
         }
     } else {
-        const found = walkable.find((key)=>root[key] && findInReactTree(root[key], predicate))
+        const found = walkable.find(
+            (key) => root[key] && findInReactTree(root[key], predicate)
+        );
         if (found) return found;
     }
     return null;
@@ -71,7 +91,7 @@ export function findInReactTree(root: any, predicate: (node: any) => boolean): a
  * @returns A css selector that matches all the given classes
  */
 export function selectorFromClasses(...classes: string[]): string {
-    return classes.map(c => `.${c.split(" ").join(".")}`).join("");
+    return classes.map((c) => `.${c.split(" ").join(".")}`).join("");
 }
 
 /**
@@ -81,11 +101,17 @@ export function selectorFromClasses(...classes: string[]): string {
  * @param dependencies An array of dependencies that will cause the listener to be re-added when they change.
  * @returns The forceUpdate function that causes a re-render of the component.
  */
-export function useGeneric(on: (forceUpdate:()=>void)=>void, off: (forceUpdate:()=>void)=>void, ...dependencies: any[]): ()=>void {
-    const [, forceUpdate] = BdApi.React.useReducer((i)=>i+1, 0)
-    BdApi.React.useEffect(()=>{
+export function useGeneric(
+    on: (forceUpdate: () => void) => void,
+    off: (forceUpdate: () => void) => void,
+    ...dependencies: any[]
+): () => void {
+    const [, forceUpdate] = BdApi.React.useReducer((i) => i + 1, 0);
+    BdApi.React.useEffect(() => {
         on(forceUpdate);
-        return ()=>{off(forceUpdate)};
+        return () => {
+            off(forceUpdate);
+        };
     }, dependencies);
     return forceUpdate;
 }

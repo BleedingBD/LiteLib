@@ -17,7 +17,9 @@ export default class DataStore extends EventEmitter {
      * @param key The key to check for.
      * @returns True if the key exists, false otherwise.
      */
-    has(key: string): boolean { return key in this.data; }
+    has(key: string): boolean {
+        return key in this.data;
+    }
 
     /**
      * Get the value of the given key, or undefined if it doesn't exist.
@@ -57,7 +59,11 @@ export default class DataStore extends EventEmitter {
      * @param modifier The function to transform the value with.
      * @param defaultValue The default value to use if the key doesn't exist.
      */
-    modify(key: string, modifier: (value: any) => any, defaultValue?: NonNullable<any>): void {
+    modify(
+        key: string,
+        modifier: (value: any) => any,
+        defaultValue?: NonNullable<any>
+    ): void {
         this.set(key, modifier(this.get(key, defaultValue)));
     }
 
@@ -83,6 +89,9 @@ export default class DataStore extends EventEmitter {
     }
 
     private syncData(): void {
-        window.setTimeout(()=>BdApi.saveData(this.configPath, this.key, this.data),0);
+        window.setTimeout(
+            () => BdApi.saveData(this.configPath, this.key, this.data),
+            0
+        );
     }
 }

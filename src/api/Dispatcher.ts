@@ -11,22 +11,31 @@ interface DiscordDispatcher {
     dirtyDispatch(payload: any): void;
 }
 
-const discordDispatcher: DiscordDispatcher = Modules.findByProps("subscribe","unsubscribe") || Modules.findByProps("dispatch","dirtyDispatch");
+const discordDispatcher: DiscordDispatcher =
+    Modules.findByProps("subscribe", "unsubscribe") ||
+    Modules.findByProps("dispatch", "dirtyDispatch");
 export default class Dispatcher implements DiscordDispatcher {
-    readonly ActionTypes: Record<string, string> = Modules.findByProps("ActionTypes")?.ActionTypes;
+    readonly ActionTypes: Record<string, string> =
+        Modules.findByProps("ActionTypes")?.ActionTypes;
 
-    constructor(){
+    constructor() {
         if (!this.ActionTypes) {
-            Logger.warn("Dispatcher", "ActionTypes not found, defaulting to identity proxy.");
+            Logger.warn(
+                "Dispatcher",
+                "ActionTypes not found, defaulting to identity proxy."
+            );
             // at the time of writing this is equivalent to Discord's ActionTypes object
-            this.ActionTypes = new Proxy({}, {
-                get: (_, prop) => prop,
-                set: () => false
-            });
+            this.ActionTypes = new Proxy(
+                {},
+                {
+                    get: (_, prop) => prop,
+                    set: () => false,
+                }
+            );
         }
     }
 
-    private readonly subscriptions = new Map<string,Set<Listener>>();
+    private readonly subscriptions = new Map<string, Set<Listener>>();
 
     /**
      * Subscribe to an action.
@@ -35,12 +44,12 @@ export default class Dispatcher implements DiscordDispatcher {
      * @returns A function to unsubscribe from the action
      */
     subscribe(action: string, listener: Listener): UnsubscribeFn {
-        if(!this.subscriptions.has(action)){
+        if (!this.subscriptions.has(action)) {
             this.subscriptions.set(action, new Set<Listener>());
         }
         const actionSubscriptions = this.subscriptions.get(action)!;
 
-        if(actionSubscriptions.has(listener)){
+        if (actionSubscriptions.has(listener)) {
             discordDispatcher.subscribe(action, listener);
             actionSubscriptions.add(listener);
         }
@@ -54,16 +63,18 @@ export default class Dispatcher implements DiscordDispatcher {
      * @param listener The callback to unsubscribe, if not provided all listeners will be unsubscribed.
      */
     unsubscribe(action: string, listener?: Listener): void {
-        if(!this.subscriptions.has(action)){ return; }
+        if (!this.subscriptions.has(action)) {
+            return;
+        }
 
         const actionSubscriptions = this.subscriptions.get(action)!;
-        if(listener){
-            if(actionSubscriptions.has(listener)){
+        if (listener) {
+            if (actionSubscriptions.has(listener)) {
                 discordDispatcher.unsubscribe(action, listener);
                 actionSubscriptions.delete(listener);
             }
-        }else{
-            for(const listener of actionSubscriptions){
+        } else {
+            for (const listener of actionSubscriptions) {
                 discordDispatcher.unsubscribe(action, listener);
             }
             actionSubscriptions.clear();
@@ -73,8 +84,8 @@ export default class Dispatcher implements DiscordDispatcher {
     /**
      * Unsubscribe all listeners from all actions that were subscribed to using this dispatcher.
      */
-    unsubscribeAll(){
-        for(const action of this.subscriptions.keys()){
+    unsubscribeAll() {
+        for (const action of this.subscriptions.keys()) {
             this.unsubscribe(action as string);
         }
         this.subscriptions.clear();
@@ -84,11 +95,14 @@ export default class Dispatcher implements DiscordDispatcher {
      * Dispatch an action.
      * @param payload The payload to dispatch
      */
-    dispatch(payload: any){ return discordDispatcher.dispatch(payload); }
+    dispatch(payload: any) {
+        return discordDispatcher.dispatch(payload);
+    }
     /**
      * Dispatch an action dirtily.
      * @param payload The payload to dispatch
      */
-    dirtyDispatch(payload: any){ return discordDispatcher.dirtyDispatch(payload); }
-
+    dirtyDispatch(payload: any) {
+        return discordDispatcher.dirtyDispatch(payload);
+    }
 }

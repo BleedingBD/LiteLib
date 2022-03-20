@@ -9,4 +9,4 @@ declare global {
 }
 
 window.LiteLib = Core;
-export {default} from "./LiteLib";
+export { default } from "./LiteLib";

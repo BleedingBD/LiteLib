@@ -17,7 +17,8 @@ export default function Logger(pluginName: string): Logger {
         log: StaticLogger.log.bind(StaticLogger, pluginName),
         warn: StaticLogger.warn.bind(StaticLogger, pluginName),
         error: StaticLogger.error.bind(StaticLogger, pluginName),
-        assert: (condition: boolean, ...args: any[])=>StaticLogger.assert(condition, pluginName, ...args),
-        trace: StaticLogger.trace.bind(StaticLogger, pluginName)
+        assert: (condition: boolean, ...args: any[]) =>
+            StaticLogger.assert(condition, pluginName, ...args),
+        trace: StaticLogger.trace.bind(StaticLogger, pluginName),
     };
 }

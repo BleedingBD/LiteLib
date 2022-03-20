@@ -1,9 +1,9 @@
-import { Memoize } from 'typescript-memoize';
+import { Memoize } from "typescript-memoize";
 import Modules from "./Modules";
 import Patcher from "./Patcher";
 import Styler from "./Styler";
 import Dispatcher from "./Dispatcher";
-import DataStore from './DataStore';
+import DataStore from "./DataStore";
 import Logger from "./Logger";
 import Modals from "@common/Modals";
 import Notices from "@common/Notices";
@@ -46,9 +46,9 @@ export interface API {
     Dispatcher: Dispatcher;
     /**
      * Use this to manage your plugin's data. Changes will automatically be saved to disk.
-     * 
+     *
      * This will be saved to and read from the .config.json file in the plugin folder. The file location can be changed by setting the configPath property in the plugin's metadata.
-     * 
+     *
      * @example
      * ```js
      * const { Data, Toast } = API;
@@ -59,9 +59,9 @@ export interface API {
     Data: DataStore;
     /**
      * Use this to manage your plugin's settings. Changes will automatically be saved to disk.
-     * 
+     *
      * This will be saved to and read from the .config.json file in the plugin folder. The file location can be changed by setting the configPath property in the plugin's metadata.
-     * 
+     *
      * @example
      * ```js
      * const { Settings, Toast } = API;
@@ -71,7 +71,7 @@ export interface API {
     Settings: DataStore;
     /**
      * Use this to log messages to the console. This makes logs look fancy by prefixing the messages with the name of the plugin.
-     * 
+     *
      * @example
      * ```js
      * const { Logger } = API;
@@ -87,7 +87,7 @@ export interface API {
     // Completely static API parts
     /**
      * Use this to show modals to the user.
-     * 
+     *
      * This is a reference to the static Modals api, which will hopefully soon just be a thin wrapper around the BdApi.showModal method.
      * @example
      * ```js
@@ -96,9 +96,9 @@ export interface API {
      * ```
      **/
     Modals: Modals;
-    /** 
+    /**
      * Use this to show a notices to the user. Notices are small bars at the top of Discord's UI which can be dismissed by the user.
-     * 
+     *
      * This is a reference to the static Toasts api, which will hopefully soon just be a thin wrapper around the BdApi.showNotice method.
      * @example
      * ```
@@ -112,9 +112,9 @@ export interface API {
     Notices: Notices;
     /**
      * Use this to show a toast messages.
-     * 
+     *
      * This is a reference to the static Toasts api, which is a thin wrapper around the BdApi.showToast method.
-     * 
+     *
      * @example
      * ```
      * const {Toasts} = Api;
@@ -128,7 +128,7 @@ export interface API {
 
     /**
      * Discord's instance of the React library. This can be used to create React components.
-     * 
+     *
      * @example
      * ```js
      * const { React, ReactDOM } = Api;
@@ -150,13 +150,35 @@ export default class Api implements API {
     private readonly pluginMetadata: Record<string, string>;
     private readonly pluginName: string;
 
-    @Memoize() get Modules() { return new Modules(); }
-    @Memoize() get Patcher() { return Patcher(this.pluginName); }
-    @Memoize() get Styler() { return new Styler(this.pluginName); }
-    @Memoize() get Dispatcher() { return new Dispatcher(); }
-    @Memoize() get Data() { return new DataStore(this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") || this.pluginName, "data"); }
-    @Memoize() get Settings(){ return new DataStore(this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") || this.pluginName, "settings"); }
-    @Memoize() get Logger() { return Logger(this.pluginName); }
+    @Memoize() get Modules() {
+        return new Modules();
+    }
+    @Memoize() get Patcher() {
+        return Patcher(this.pluginName);
+    }
+    @Memoize() get Styler() {
+        return new Styler(this.pluginName);
+    }
+    @Memoize() get Dispatcher() {
+        return new Dispatcher();
+    }
+    @Memoize() get Data() {
+        return new DataStore(
+            this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") ||
+                this.pluginName,
+            "data"
+        );
+    }
+    @Memoize() get Settings() {
+        return new DataStore(
+            this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") ||
+                this.pluginName,
+            "settings"
+        );
+    }
+    @Memoize() get Logger() {
+        return Logger(this.pluginName);
+    }
 
     // Completely static API parts
     Modals = Modals;
@@ -166,7 +188,7 @@ export default class Api implements API {
     React = BdApi.React;
     ReactDOM = BdApi.ReactDOM;
 
-    constructor(pluginMetadata: Record<string, string>){
+    constructor(pluginMetadata: Record<string, string>) {
         this.pluginMetadata = pluginMetadata;
         this.pluginName = pluginMetadata.name;
     }

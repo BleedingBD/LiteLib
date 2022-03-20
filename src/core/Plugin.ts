@@ -113,15 +113,21 @@ export abstract class PluginBase implements LiteLibPlugin {
         this.metadata = metadata;
         this.name = metadata.name;
         this.API = new API(metadata);
-        this.API.Data.on("change", (key, value) => this.suppressErrors(()=>this.onDataChanged?.(key, value)));
-        this.API.Settings.on("change", (key, value) => this.suppressErrors(()=>this.onSettingsChanged?.(key, value)));
+        this.API.Data.on("change", (key, value) =>
+            this.suppressErrors(() => this.onDataChanged?.(key, value))
+        );
+        this.API.Settings.on("change", (key, value) =>
+            this.suppressErrors(() => this.onSettingsChanged?.(key, value))
+        );
     }
 
     load(): void {
-        if(typeof this.firstLoad == "function") setTimeout(()=>this.checkForFirstLaunch(),0);
-        if(typeof this.getChangelogPanel == "function") setTimeout(()=>this.checkForChangelog(),0);
+        if (typeof this.firstLoad == "function")
+            setTimeout(() => this.checkForFirstLaunch(), 0);
+        if (typeof this.getChangelogPanel == "function")
+            setTimeout(() => this.checkForChangelog(), 0);
         this.checkForUpdate();
-        this.suppressErrors(()=>this.initialize?.(this.API));
+        this.suppressErrors(() => this.initialize?.(this.API));
     }
     initialize?(api: API): void;
     firstLoad?(api: API): void;
@@ -148,40 +154,50 @@ export abstract class PluginBase implements LiteLibPlugin {
 
     start(): void {
         const { API } = this;
-        this.suppressErrors(()=>this.setup?.(API));
-        this.suppressErrors(()=>this.patch?.(API));
-        this.suppressErrors(()=>this.style?.(API));
-        this.suppressErrors(()=>this.css && API.Styler.add("css", this.css()));
+        this.suppressErrors(() => this.setup?.(API));
+        this.suppressErrors(() => this.patch?.(API));
+        this.suppressErrors(() => this.style?.(API));
+        this.suppressErrors(
+            () => this.css && API.Styler.add("css", this.css())
+        );
     }
     setup?(api: API): void;
     patch?(api: API): void;
     style?(api: API): void;
 
     stop(): void {
-        this.suppressErrors(()=>this.cleanup?.(this.API));
-        this.suppressErrors(()=>this.unpatch?.(this.API));
-        this.suppressErrors(()=>this.unstyle?.(this.API));
+        this.suppressErrors(() => this.cleanup?.(this.API));
+        this.suppressErrors(() => this.unpatch?.(this.API));
+        this.suppressErrors(() => this.unstyle?.(this.API));
     }
     cleanup?(api: API): void;
-    unpatch?({Patcher}: API): void{ Patcher.unpatchAll(); }
-    unstyle?({Styler}: API): void{ Styler.removeAll(); }
+    unpatch?({ Patcher }: API): void {
+        Patcher.unpatchAll();
+    }
+    unstyle?({ Styler }: API): void {
+        Styler.removeAll();
+    }
 
     reloadPatches(): void {
-        this.suppressErrors(()=>this.unpatch?.(this.API));
-        this.suppressErrors(()=>this.patch?.(this.API));
+        this.suppressErrors(() => this.unpatch?.(this.API));
+        this.suppressErrors(() => this.patch?.(this.API));
     }
     reloadStyles(): void {
         const { API } = this;
-        this.suppressErrors(()=>this.unstyle?.(API));
-        this.suppressErrors(()=>this.style?.(API));
-        this.suppressErrors(()=>this.css && API.Styler.add("css", this.css()));
+        this.suppressErrors(() => this.unstyle?.(API));
+        this.suppressErrors(() => this.style?.(API));
+        this.suppressErrors(
+            () => this.css && API.Styler.add("css", this.css())
+        );
     }
 
     useSettings(): API {
         const { Settings } = this.API;
         useGeneric(
-            (forceUpdate)=>Settings.on("change",forceUpdate),
-            (forceUpdate)=>{Settings.off("change", forceUpdate)},
+            (forceUpdate) => Settings.on("change", forceUpdate),
+            (forceUpdate) => {
+                Settings.off("change", forceUpdate);
+            },
             Settings
         );
         return this.API;
@@ -189,14 +205,16 @@ export abstract class PluginBase implements LiteLibPlugin {
     useData(): API {
         const { Data } = this.API;
         useGeneric(
-            (forceUpdate)=>Data.on("change",forceUpdate),
-            (forceUpdate)=>{Data.off("change", forceUpdate)},
+            (forceUpdate) => Data.on("change", forceUpdate),
+            (forceUpdate) => {
+                Data.off("change", forceUpdate);
+            },
             Data
         );
         return this.API;
     }
 
-    getChangelogPanel?(): Node|React.FC|React.Component|string;
+    getChangelogPanel?(): Node | React.FC | React.Component | string;
 
     css?(): string;
 
@@ -213,8 +231,10 @@ export abstract class PluginBase implements LiteLibPlugin {
  * The returned class should be extended by your plugin class.
  * @returns A plugin class that extends PluginBase. Extend this class to create a plugin.
  */
-export default function(): typeof PluginBase & {new(): PluginBase} {
-    const scriptTag = document.head.querySelector(`script[id$=-script-container]`);
+export default function (): typeof PluginBase & { new (): PluginBase } {
+    const scriptTag = document.head.querySelector(
+        `script[id$=-script-container]`
+    );
     if (scriptTag && scriptTag.textContent) {
         const metadata = parseMetadata(scriptTag.textContent, false);
         if (metadata?.name) {
@@ -222,12 +242,16 @@ export default function(): typeof PluginBase & {new(): PluginBase} {
                 constructor() {
                     super(metadata ?? {});
                 }
-            }
+            };
         }
     }
     return class extends PluginBase {
         constructor() {
-            super({name: "Invalid Plugin", description: "The metadata for the plugin couldn't be loaded.", version: "?.?.?"});
+            super({
+                name: "Invalid Plugin",
+                description: "The metadata for the plugin couldn't be loaded.",
+                version: "?.?.?",
+            });
         }
-    }
+    };
 }

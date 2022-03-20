@@ -3,7 +3,7 @@ import StaticModules, { Predicate } from "@common/Modules";
 
 export default class Modules {
     private readonly findCache = new Map<string, any>();
-    private readonly findAllCache = new Map<string, any[]|undefined>();
+    private readonly findAllCache = new Map<string, any[] | undefined>();
 
     findByProps = StaticModules.findByProps;
     findByDisplayName = StaticModules.findByDisplayName;
@@ -19,7 +19,6 @@ export default class Modules {
         return StaticModules.find(predicate);
     }
 
-
     /**
      * Find all Discord webpack modules that match the predicate.
      * This is a memoized version of the static find method.
@@ -27,7 +26,7 @@ export default class Modules {
      * @param predicate The predicate to match
      * @returns An array of modules that match the predicate or undefined if none was found
      */
-    @Memoize() findAll(name: string, predicate: Predicate): any[]|undefined {
+    @Memoize() findAll(name: string, predicate: Predicate): any[] | undefined {
         return StaticModules.findAll(predicate);
     }
 }

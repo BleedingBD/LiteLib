@@ -18,7 +18,7 @@
   "scripts": {
     "build": "rollup --config",
     "lint": "eslint src",
-    "format": "prettier --write",
+    "format": "prettier --write src",
     "tag-latest": "git tag -f latest",
     "tag-stable": "git tag -f latest",
     "tag": "git tag -f latest && git tag -f stable"
@@ -36,7 +36,6 @@
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@rollup/plugin-replace": "^4.0.0",
     "@tsconfig/recommended": "^1.0.1",
-    "@types/bandagedbd__bdapi": "github:BleedingBD/BdApi-typedefs",
     "@types/betterdiscord__bdapi": "github:BleedingBD/BdApi-typedefs",
     "@types/node": "^17.0.21",
     "@types/react": "^17.0.40",
