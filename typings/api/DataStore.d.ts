@@ -1,4 +1,4 @@
-import EventEmitter from "@common/EventEmitter";
+import EventEmitter from "../common/EventEmitter";
 export default class DataStore extends EventEmitter {
     private readonly key;
     private readonly configPath;

@@ -1,8 +1,8 @@
 /// <reference types="node" />
 /// <reference types="react" />
-import { API } from "api";
-declare const default_base: typeof import("core/Plugin").PluginBase & (new () => import("core/Plugin").PluginBase);
-export default class extends default_base {
+import API from "api";
+declare const LiteLib_base: typeof import("core/Plugin").PluginBase & (new () => import("core/Plugin").PluginBase);
+export default class LiteLib extends LiteLib_base {
     updateAllInterval?: NodeJS.Timer;
     initialize(API: API): void;
     unstyle(): void;

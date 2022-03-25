@@ -1,5 +1,5 @@
-import Logger from "@common/Logger";
-import Modules from "@common/Modules";
+import Logger from "../common/Logger";
+import Modules from "../common/Modules";
 
 type UnsubscribeFn = () => void;
 type Listener = (payload: any) => void;

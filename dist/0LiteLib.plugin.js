@@ -570,7 +570,7 @@ class Toasts {
     }
 }
 
-class Api {
+class API {
     pluginMetadata;
     pluginName;
     get Modules() {
@@ -621,17 +621,17 @@ class Api {
     }
 }
 
-__decorate([ Memoize() ], Api.prototype, "Modules", null), __decorate([ Memoize() ], Api.prototype, "Patcher", null), 
-__decorate([ Memoize() ], Api.prototype, "Styler", null), __decorate([ Memoize() ], Api.prototype, "Dispatcher", null), 
-__decorate([ Memoize() ], Api.prototype, "Data", null), __decorate([ Memoize() ], Api.prototype, "Settings", null), 
-__decorate([ Memoize() ], Api.prototype, "Logger", null);
+__decorate([ Memoize() ], API.prototype, "Modules", null), __decorate([ Memoize() ], API.prototype, "Patcher", null), 
+__decorate([ Memoize() ], API.prototype, "Styler", null), __decorate([ Memoize() ], API.prototype, "Dispatcher", null), 
+__decorate([ Memoize() ], API.prototype, "Data", null), __decorate([ Memoize() ], API.prototype, "Settings", null), 
+__decorate([ Memoize() ], API.prototype, "Logger", null);
 
 class PluginBase {
     metadata;
     name;
     API;
     constructor(metadata) {
-        this.metadata = metadata, this.name = metadata.name, this.API = new Api(metadata), 
+        this.metadata = metadata, this.name = metadata.name, this.API = new API(metadata), 
         this.API.Data.on("change", ((key, value) => this.suppressErrors((() => this.onDataChanged?.(key, value))))), 
         this.API.Settings.on("change", ((key, value) => this.suppressErrors((() => this.onSettingsChanged?.(key, value)))));
     }

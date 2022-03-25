@@ -2,8 +2,8 @@ import { BdPlugin } from "@betterdiscord/bdapi";
 import Updater from "./Updater";
 import API from "../api";
 import React from "react";
-import { parseMetadata } from "@common/MetadataParser";
-import { suppressErrors, useGeneric } from "@common/Utilities";
+import { parseMetadata } from "../common/MetadataParser";
+import { suppressErrors, useGeneric } from "../common/Utilities";
 
 export declare interface LiteLibPlugin extends BdPlugin {
     /**

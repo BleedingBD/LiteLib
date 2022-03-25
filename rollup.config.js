@@ -19,9 +19,7 @@ export default {
         postcss({
             inject: false,
         }),
-        typescript({
-            tsconfig: "./tsconfig.json"
-        }),
+        typescript(),
         commonjs(),
         terser({
             compress: {

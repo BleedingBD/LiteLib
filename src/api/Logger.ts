@@ -1,4 +1,4 @@
-import StaticLogger from "@common/Logger";
+import StaticLogger from "../common/Logger";
 
 export interface Logger {
     debug(...args: any[]): void;

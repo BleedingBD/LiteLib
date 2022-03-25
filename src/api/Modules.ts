@@ -1,5 +1,5 @@
 import { Memoize } from "typescript-memoize";
-import StaticModules, { Predicate } from "@common/Modules";
+import StaticModules, { Predicate } from "../common/Modules";
 
 export default class Modules {
     private readonly findCache = new Map<string, any>();

@@ -8,4 +8,5 @@ declare global {
 }
 
 window.LiteLib = Core;
+
 export { default } from "./LiteLib";

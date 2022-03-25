@@ -1,7 +1,7 @@
 import { promises } from "fs";
 import { resolve } from "path";
-import Logger from "@common/Logger";
-import { parseMetadata } from "@common/MetadataParser";
+import Logger from "../../common/Logger";
+import { parseMetadata } from "../../common/MetadataParser";
 import PendingUpdateStore from "./PendingUpdatesStore";
 
 export async function applyUpdate(pluginName: string): Promise<boolean> {

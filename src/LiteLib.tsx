@@ -2,10 +2,9 @@ import { promises } from "fs";
 import { resolve } from "path";
 import Updater from "core/Updater";
 import Plugin from "core/Plugin";
-import { API } from "api";
+import API from "api";
 import css from "./styles/index.scss";
-
-export default class extends Plugin() {
+export default class LiteLib extends Plugin() {
     updateAllInterval?: NodeJS.Timer;
 
     public override initialize(API: API) {

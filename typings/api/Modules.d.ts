@@ -1,4 +1,4 @@
-import StaticModules, { Predicate } from "@common/Modules";
+import StaticModules, { Predicate } from "../common/Modules";
 export default class Modules {
     private readonly findCache;
     private readonly findAllCache;

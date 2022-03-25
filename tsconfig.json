@@ -1,6 +1,6 @@
 {
     "extends": "@tsconfig/recommended/tsconfig.json",
-    "include": ["src/**/*", "@types/**/*"],
+    "include": ["src/**/*"],
     "exclude": [],
     "compilerOptions": {
         "experimentalDecorators": true,
@@ -10,11 +10,8 @@
         "jsxFactory": "BdApi.React.createElement",
         "jsxFragmentFactory": "BdApi.React.Fragment",
         "declaration": true,
-        "declarationDir": ".",
+        "declarationDir": "typings",
         "moduleResolution": "node",
-        "baseUrl": "src",
-        "paths": {
-            "@common/*": ["common/*"]
-        }
+        "baseUrl": "src"
     }
 }

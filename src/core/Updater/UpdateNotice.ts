@@ -1,6 +1,6 @@
 import { NoticeCloseFn } from "@betterdiscord/bdapi";
-import Notices from "@common/Notices";
-import { createHTMLElement } from "@common/Utilities";
+import Notices from "../../common/Notices";
+import { createHTMLElement } from "../../common/Utilities";
 import { applyUpdate } from "./UpdatePerformer";
 
 const pluginsList: HTMLElement = createHTMLElement("span", {

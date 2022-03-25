@@ -5,11 +5,14 @@ import Styler from "./Styler";
 import Dispatcher from "./Dispatcher";
 import DataStore from "./DataStore";
 import Logger from "./Logger";
-import Modals from "@common/Modals";
-import Notices from "@common/Notices";
-import Toasts from "@common/Toasts";
+import Modals from "../common/Modals";
+import Notices from "../common/Notices";
+import Toasts from "../common/Toasts";
 
-export interface API {
+export default class API {
+    private readonly pluginMetadata: Record<string, string>;
+    private readonly pluginName: string;
+
     /**
      * Use this to access Discord's internal modules.
      * @example
@@ -17,7 +20,9 @@ export interface API {
      * const { Modules } = API;
      * const Flex = Modules.findByDisplayName("Flex");
      */
-    Modules: Modules;
+    @Memoize() get Modules() {
+        return new Modules();
+    }
     /**
      * The Patcher can be used to methods on Discord's modules.
      * @example
@@ -26,7 +31,9 @@ export interface API {
      *    options.content = "foobar";
      * });
      */
-    Patcher: ReturnType<typeof Patcher>;
+    @Memoize() get Patcher() {
+        return Patcher(this.pluginName);
+    }
     /**
      * The Styler can be used to add stylesheets to the document.
      * @example
@@ -39,11 +46,15 @@ export interface API {
      * `);
      * ```
      */
-    Styler: Styler;
+    @Memoize() get Styler() {
+        return new Styler(this.pluginName);
+    }
     /**
      * The Dispatcher is used to subscribe to actions dispatched by Discord or to dispatch actions to Discord.
      */
-    Dispatcher: Dispatcher;
+    @Memoize() get Dispatcher() {
+        return new Dispatcher();
+    }
     /**
      * Use this to manage your plugin's data. Changes will automatically be saved to disk.
      *
@@ -56,7 +67,13 @@ export interface API {
      * Toast.info(`Welcome back! You've logged in ${Data.get("noOfLogins")} times.`);
      * ```
      */
-    Data: DataStore;
+    @Memoize() get Data() {
+        return new DataStore(
+            this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") ||
+                this.pluginName,
+            "data"
+        );
+    }
     /**
      * Use this to manage your plugin's settings. Changes will automatically be saved to disk.
      *
@@ -68,7 +85,13 @@ export interface API {
      * Toast.info(`Welcome back, ${Settings.get("name", "User")}!`);
      * ```
      */
-    Settings: DataStore;
+    @Memoize() get Settings() {
+        return new DataStore(
+            this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") ||
+                this.pluginName,
+            "settings"
+        );
+    }
     /**
      * Use this to log messages to the console. This makes logs look fancy by prefixing the messages with the name of the plugin.
      *
@@ -82,7 +105,9 @@ export interface API {
      * Logger.error("This is an error message");
      * ```
      */
-    Logger: ReturnType<typeof Logger>;
+    @Memoize() get Logger() {
+        return Logger(this.pluginName);
+    }
 
     // Completely static API parts
     /**
@@ -95,7 +120,7 @@ export interface API {
      * Modals.show("Hello World", "This is a modal");
      * ```
      **/
-    Modals: Modals;
+    Modals = Modals;
     /**
      * Use this to show a notices to the user. Notices are small bars at the top of Discord's UI which can be dismissed by the user.
      *
@@ -109,7 +134,7 @@ export interface API {
      * Notices.error("You broke something");
      * ```
      **/
-    Notices: Notices;
+    Notices = Notices;
     /**
      * Use this to show a toast messages.
      *
@@ -124,7 +149,7 @@ export interface API {
      * Toasts.error("You broke something");
      * ```
      **/
-    Toasts: Toasts;
+    Toasts = Toasts;
 
     /**
      * Discord's instance of the React library. This can be used to create React components.
@@ -138,54 +163,11 @@ export interface API {
      * ReactDOM.render(React.createElement(Component), document.getElementById("root"));
      * ```
      **/
-    React: typeof BdApi.React;
+    React = BdApi.React;
     /**
      * Discord's instance of the React DOM library. This can be used to render React components.
      * @see {@link API.React}
      **/
-    ReactDOM: typeof BdApi.ReactDOM;
-}
-
-export default class Api implements API {
-    private readonly pluginMetadata: Record<string, string>;
-    private readonly pluginName: string;
-
-    @Memoize() get Modules() {
-        return new Modules();
-    }
-    @Memoize() get Patcher() {
-        return Patcher(this.pluginName);
-    }
-    @Memoize() get Styler() {
-        return new Styler(this.pluginName);
-    }
-    @Memoize() get Dispatcher() {
-        return new Dispatcher();
-    }
-    @Memoize() get Data() {
-        return new DataStore(
-            this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") ||
-                this.pluginName,
-            "data"
-        );
-    }
-    @Memoize() get Settings() {
-        return new DataStore(
-            this.pluginMetadata.configPath?.replace?.(/.config.json$/, "") ||
-                this.pluginName,
-            "settings"
-        );
-    }
-    @Memoize() get Logger() {
-        return Logger(this.pluginName);
-    }
-
-    // Completely static API parts
-    Modals = Modals;
-    Notices = Notices;
-    Toasts = Toasts;
-
-    React = BdApi.React;
     ReactDOM = BdApi.ReactDOM;
 
     constructor(pluginMetadata: Record<string, string>) {

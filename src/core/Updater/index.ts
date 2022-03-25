@@ -1,7 +1,7 @@
 import { update as updateNotice } from "./UpdateNotice";
 import PendingUpdateStore from "./PendingUpdatesStore";
-import { parseMetadata } from "@common/MetadataParser";
-import Logger from "@common/Logger";
+import { parseMetadata } from "../../common/MetadataParser";
+import Logger from "../../common/Logger";
 import { gt, valid } from "./Semver";
 
 PendingUpdateStore.subscribe((pendingUpdates) => {

@@ -1,14 +1,14 @@
 /// <reference types="react" />
 import Modules from "./Modules";
-import Patcher from "./Patcher";
 import Styler from "./Styler";
 import Dispatcher from "./Dispatcher";
 import DataStore from "./DataStore";
-import Logger from "./Logger";
-import Modals from "@common/Modals";
-import Notices from "@common/Notices";
-import Toasts from "@common/Toasts";
-export interface API {
+import Modals from "../common/Modals";
+import Notices from "../common/Notices";
+import Toasts from "../common/Toasts";
+export default class API {
+    private readonly pluginMetadata;
+    private readonly pluginName;
     /**
      * Use this to access Discord's internal modules.
      * @example
@@ -16,7 +16,7 @@ export interface API {
      * const { Modules } = API;
      * const Flex = Modules.findByDisplayName("Flex");
      */
-    Modules: Modules;
+    get Modules(): Modules;
     /**
      * The Patcher can be used to methods on Discord's modules.
      * @example
@@ -25,7 +25,7 @@ export interface API {
      *    options.content = "foobar";
      * });
      */
-    Patcher: ReturnType<typeof Patcher>;
+    get Patcher(): import("./Patcher").Patcher;
     /**
      * The Styler can be used to add stylesheets to the document.
      * @example
@@ -38,11 +38,11 @@ export interface API {
      * `);
      * ```
      */
-    Styler: Styler;
+    get Styler(): Styler;
     /**
      * The Dispatcher is used to subscribe to actions dispatched by Discord or to dispatch actions to Discord.
      */
-    Dispatcher: Dispatcher;
+    get Dispatcher(): Dispatcher;
     /**
      * Use this to manage your plugin's data. Changes will automatically be saved to disk.
      *
@@ -55,7 +55,7 @@ export interface API {
      * Toast.info(`Welcome back! You've logged in ${Data.get("noOfLogins")} times.`);
      * ```
      */
-    Data: DataStore;
+    get Data(): DataStore;
     /**
      * Use this to manage your plugin's settings. Changes will automatically be saved to disk.
      *
@@ -67,7 +67,7 @@ export interface API {
      * Toast.info(`Welcome back, ${Settings.get("name", "User")}!`);
      * ```
      */
-    Settings: DataStore;
+    get Settings(): DataStore;
     /**
      * Use this to log messages to the console. This makes logs look fancy by prefixing the messages with the name of the plugin.
      *
@@ -81,7 +81,7 @@ export interface API {
      * Logger.error("This is an error message");
      * ```
      */
-    Logger: ReturnType<typeof Logger>;
+    get Logger(): import("./Logger").Logger;
     /**
      * Use this to show modals to the user.
      *
@@ -92,7 +92,7 @@ export interface API {
      * Modals.show("Hello World", "This is a modal");
      * ```
      **/
-    Modals: Modals;
+    Modals: typeof Modals;
     /**
      * Use this to show a notices to the user. Notices are small bars at the top of Discord's UI which can be dismissed by the user.
      *
@@ -106,7 +106,7 @@ export interface API {
      * Notices.error("You broke something");
      * ```
      **/
-    Notices: Notices;
+    Notices: typeof Notices;
     /**
      * Use this to show a toast messages.
      *
@@ -121,7 +121,7 @@ export interface API {
      * Toasts.error("You broke something");
      * ```
      **/
-    Toasts: Toasts;
+    Toasts: typeof Toasts;
     /**
      * Discord's instance of the React library. This can be used to create React components.
      *
@@ -134,27 +134,11 @@ export interface API {
      * ReactDOM.render(React.createElement(Component), document.getElementById("root"));
      * ```
      **/
-    React: typeof BdApi.React;
+    React: typeof import("react");
     /**
      * Discord's instance of the React DOM library. This can be used to render React components.
      * @see {@link API.React}
      **/
-    ReactDOM: typeof BdApi.ReactDOM;
-}
-export default class Api implements API {
-    private readonly pluginMetadata;
-    private readonly pluginName;
-    get Modules(): Modules;
-    get Patcher(): import("./Patcher").Patcher;
-    get Styler(): Styler;
-    get Dispatcher(): Dispatcher;
-    get Data(): DataStore;
-    get Settings(): DataStore;
-    get Logger(): import("./Logger").Logger;
-    Modals: typeof Modals;
-    Notices: typeof Notices;
-    Toasts: typeof Toasts;
-    React: typeof import("react");
     ReactDOM: typeof import("react-dom");
     constructor(pluginMetadata: Record<string, string>);
 }

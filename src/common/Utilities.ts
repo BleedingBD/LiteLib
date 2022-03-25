@@ -1,4 +1,4 @@
-import Logger from "@common/Logger";
+import Logger from "../common/Logger";
 
 type NodeChild = Node | string | number;
 type NodeChildren = (NodeChild | NodeChildren | null)[];
