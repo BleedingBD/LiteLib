@@ -1,5 +1,4 @@
 import * as Core from "./core";
-import "./styles/index.scss";
 
 declare global {
     const LiteLib: typeof Core;

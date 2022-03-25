@@ -1,29 +1,23 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import ts from "rollup-plugin-ts";
 import commonjs from "@rollup/plugin-commonjs";
-import styles from "rollup-plugin-styles";
+import postcss from "rollup-plugin-postcss"
 import {terser} from "rollup-plugin-terser";
 import replace from "@rollup/plugin-replace";
 import license from "rollup-plugin-license";
-import {displayName as name} from "./package.json";
+import {main as outputFile} from "./package.json";
 
 export default {
     input: "src/index.ts",
     output: {
-        file: "dist/0LiteLib.plugin.js",
+        file: outputFile,
         format: "cjs",
         exports: "auto"
     },
     plugins: [
         nodeResolve(),
-        styles({
-            extensions: [".css", ".scss", ".sass", ".less", ".styl"],
-            mode: [
-                "inject",
-                (varname, id) => {
-                    return `BdApi.injectCSS("${name}-${id.split("/").slice(-1)}",${varname})`
-                }
-            ]
+        postcss({
+            inject: false,
         }),
         ts(),
         commonjs(),

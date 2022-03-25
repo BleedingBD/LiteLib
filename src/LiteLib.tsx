@@ -3,15 +3,22 @@ import { resolve } from "path";
 import Updater from "core/Updater";
 import Plugin from "core/Plugin";
 import { API } from "api";
+import css from "./styles/index.scss";
 
 export default class extends Plugin() {
     updateAllInterval?: NodeJS.Timer;
 
-    initialize(API: API) {
+    public override initialize(API: API) {
         this.updateAllInterval = setInterval(
             () => this.checkAllForUpdates(API),
             15 * 60 * 1000
         );
+        API.Styler.add(css);
+    }
+
+    public override unstyle() {
+        // Do nothing to avoid styles from being removed when the plugin is disabled.
+        return;
     }
 
     /*
@@ -23,7 +30,7 @@ export default class extends Plugin() {
     }
     */
 
-    firstLoad({ Logger }: API) {
+    public override firstLoad({ Logger }: API) {
         Logger.info("Detected first load.");
         const time = new Date();
         BdApi.Plugins.getAll().forEach((plugin) => {
@@ -59,7 +66,7 @@ export default class extends Plugin() {
         });
     }
 
-    getSettingsPanel() {
+    public getSettingsPanel() {
         return () => {
             const { Modules, Settings } = this.useSettings();
             const SwitchItem = Modules.findByDisplayName("SwitchItem");

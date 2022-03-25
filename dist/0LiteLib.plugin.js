@@ -1,10 +1,10 @@
 /**
  * @name LiteLib
- * @version 0.5.1
+ * @version 0.5.2
  * @description A lightweight library for creating BetterDiscord plugins.
  * @license Unlicense
  * @author Qb
- * @litelib ^0.5.1
+ * @litelib ^0.5.2
  * @pluginPath 0LiteLib.plugin.js
  * @configPath 0LiteLib.config.json
  * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js
@@ -725,13 +725,13 @@ var Core = Object.freeze({
     Utilities
 });
 
-BdApi.injectCSS("LiteLib-index.scss", ".ll-update-notice-plugin {\n  cursor: pointer;\n  padding-left: 0.2em;\n}\n\n.ll-update-notice-plugin:hover {\n  text-decoration: underline;\n}");
-
 class LiteLib extends(Plugin()){
     updateAllInterval;
     initialize(API) {
-        this.updateAllInterval = setInterval((() => this.checkAllForUpdates(API)), 9e5);
+        this.updateAllInterval = setInterval((() => this.checkAllForUpdates(API)), 9e5), 
+        API.Styler.add(".ll-update-notice-plugin {\n  cursor: pointer;\n  padding-left: 0.2em;\n}\n\n.ll-update-notice-plugin:hover {\n  text-decoration: underline;\n}");
     }
+    unstyle() {}
     firstLoad({Logger}) {
         Logger.info("Detected first load.");
         const time = new Date;

@@ -30,3 +30,9 @@ This can be seen in a handful of places:
 * Automatic Memoization whereever it's reasonable
 * The ability to disable periodic update checks
 * TypeDefs for both the library and the BdAPI are available
+
+## Disadvantages compared to Zere's Plugin Library
+
+* No system to build config interfaces from a json config object
+* No built-in library of known Discord Modules
+* No Popouts, Tooltips and Context Menu utilities
