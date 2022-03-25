@@ -1,5 +1,5 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
-import ts from "rollup-plugin-ts";
+import typescript from "@rollup/plugin-typescript";
 import commonjs from "@rollup/plugin-commonjs";
 import postcss from "rollup-plugin-postcss"
 import {terser} from "rollup-plugin-terser";
@@ -19,7 +19,9 @@ export default {
         postcss({
             inject: false,
         }),
-        ts(),
+        typescript({
+            tsconfig: "./tsconfig.json"
+        }),
         commonjs(),
         terser({
             compress: {

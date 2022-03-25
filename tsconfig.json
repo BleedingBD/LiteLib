@@ -1,6 +1,7 @@
 {
     "extends": "@tsconfig/recommended/tsconfig.json",
     "include": ["src/**/*", "@types/**/*"],
+    "exclude": [],
     "compilerOptions": {
         "experimentalDecorators": true,
         "target": "ESNext",
@@ -8,10 +9,10 @@
         "jsx": "react",
         "jsxFactory": "BdApi.React.createElement",
         "jsxFragmentFactory": "BdApi.React.Fragment",
-        "outDir": "dist",
         "declaration": true,
-        "baseUrl": "src",
+        "declarationDir": ".",
         "moduleResolution": "node",
+        "baseUrl": "src",
         "paths": {
             "@common/*": ["common/*"]
         }

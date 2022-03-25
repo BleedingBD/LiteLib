@@ -1,10 +1,10 @@
 /**
  * @name LiteLib
- * @version 0.5.2
+ * @version 0.5.3
  * @description A lightweight library for creating BetterDiscord plugins.
  * @license Unlicense
  * @author Qb
- * @litelib ^0.5.2
+ * @litelib ^0.5.3
  * @pluginPath 0LiteLib.plugin.js
  * @configPath 0LiteLib.config.json
  * @updateUrl https://raw.githubusercontent.com/BleedingBD/LiteLib/stable/dist/0LiteLib.plugin.js
